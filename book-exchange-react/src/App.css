@@ -1,0 +1,248 @@
+/* ======================
+   Цветовая схема
+   ====================== */
+:root {
+  --main-bg-color: #f3f6fb;
+  --sidebar-bg-color: #2c3e50;
+  --sidebar-text-color: #ecf0f1;
+  --accent-color: #3498db;
+  --accent-color-hover: #2980b9;
+  --text-color: #2c3e50;
+  --white-color: #fff;
+}
+
+/* Сброс базовых стилей */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body, html {
+  height: 100%;
+  font-family: 'Open Sans', Arial, sans-serif;
+  background: var(--main-bg-color);
+  color: var(--text-color);
+}
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ======================
+   Контейнер приложения
+   ====================== */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ======================
+   Левая боковая панель
+   ====================== */
+.side-menu {
+  width: 220px;
+  background: var(--sidebar-bg-color);
+  color: var(--sidebar-text-color);
+  display: flex;
+  flex-direction: column;
+  padding-top: 20px;
+}
+.side-menu .logo-block {
+  padding: 20px;
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: bold;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  margin-bottom: 20px;
+}
+.side-menu ul {
+  list-style: none;
+  padding: 0;
+}
+.side-menu li a {
+  display: block;
+  padding: 15px 20px;
+  color: var(--sidebar-text-color);
+  transition: background 0.3s;
+}
+.side-menu li a:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ======================
+   Правая часть (main + header + footer)
+   ====================== */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Верхняя шапка */
+.top-header {
+  background: var(--white-color);
+  padding: 10px 20px;
+  border-bottom: 1px solid #ddd;
+}
+.user-block {
+  text-align: right;
+}
+.user-block .auth-links a {
+  color: var(--accent-color);
+  margin-left: 15px;
+}
+
+/* Основной контент */
+.page-content {
+  flex: 1;
+  padding: 30px;
+}
+
+/* Подвал */
+.footer {
+  background: var(--sidebar-bg-color);
+  color: var(--sidebar-text-color);
+  text-align: center;
+  padding: 15px 0;
+}
+
+/* ======================
+   Кнопки (общий стиль)
+   ====================== */
+button {
+  background: var(--accent-color);
+  color: #fff;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
+  font-size: 1rem;
+}
+button:hover {
+  background: var(--accent-color-hover);
+}
+
+/* ======================
+   Главная страница (Home)
+   ====================== */
+.home-page {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+/* Hero-секция */
+.hero-section {
+  background: linear-gradient(to right, #3498db, #8e44ad);
+  color: #fff;
+  padding: 60px 40px;
+  border-radius: 8px;
+  text-align: center;
+}
+.hero-section h2 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+}
+.hero-section p {
+  font-size: 1.1rem;
+  margin-bottom: 30px;
+}
+.hero-section button {
+  background: #fff;
+  color: #3498db;
+  padding: 14px 28px;
+  font-size: 1rem;
+  border-radius: 24px;
+}
+.hero-section button:hover {
+  background: #ecf0f1;
+}
+
+/* Статистика на главной */
+.stats-section {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: #fff;
+  border-radius: 8px;
+  padding: 30px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+}
+.stat-item {
+  text-align: center;
+}
+.stat-number {
+  display: block;
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--accent-color);
+  margin-bottom: 5px;
+}
+.stat-label {
+  font-size: 1rem;
+  color: #666;
+}
+
+/* ======================
+   Общие стили форм
+   ====================== */
+.form-group {
+  margin-bottom: 15px;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font: inherit;
+}
+
+/* ======================
+   "Игровой" обмен (StartExchange)
+   ====================== */
+.start-exchange-game {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.15);
+  margin-bottom: 20px;
+}
+.exchange-container {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+.give-column, .get-column {
+  flex: 1;
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #ddd;
+}
+.address-block {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  margin-bottom: 20px;
+}
+
+/* Чтобы заголовки внутри были видны */
+.give-column h3, .get-column h3, .address-block h3 {
+  margin-bottom: 15px;
+}
+
+/* ======================
+   Дополнительные стили
+   ====================== */
+.sub-block {
+  margin-top: 20px;
+}
