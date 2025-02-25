@@ -6,15 +6,18 @@ import StartExchange from './components/StartExchange.jsx';
 import MyExchanges from './components/MyExchanges.jsx';
 import Profile from './components/Profile.jsx';
 import Feedback from './components/Feedback.jsx';
+import Registration from './Registration.jsx';
+import Login from './Login.jsx';
 
 function App() {
   return (
     <div className="app-container">
-      {/* Левая боковая панель с меню */}
+      {/* Левая боковая панель с меню + копирайт внизу */}
       <aside className="side-menu">
         <div className="logo-block">
           <span className="logo">LOGO</span>
         </div>
+
         <nav>
           <ul>
             <li><Link to="/">Главная</Link></li>
@@ -24,6 +27,11 @@ function App() {
             <li><Link to="/feedback">Обратная связь</Link></li>
           </ul>
         </nav>
+
+        {/* Footer в левой панели, снизу */}
+        <footer className="footer">
+          <p>© 2025 Сервис обмена книгами</p>
+        </footer>
       </aside>
 
       {/* Правая часть: контент */}
@@ -31,8 +39,8 @@ function App() {
         <header className="top-header">
           <div className="user-block">
             <span className="auth-links">
-              <a href="#!" onClick={() => alert('Авторизация (демо)')}>Авторизация</a> / 
-              <a href="#!" onClick={() => alert('Регистрация (демо)')}>Регистрация</a>
+              <Link to="/login">Авторизация</Link> / 
+              <Link to="/register"> Регистрация</Link>
             </span>
           </div>
         </header>
@@ -44,12 +52,10 @@ function App() {
             <Route path="/my-exchanges" element={<MyExchanges />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/feedback" element={<Feedback />} />
+            <Route path="/register" element={<Registration />} />
+            <Route path="/login" element={<Login />} />
           </Routes>
         </div>
-
-        <footer className="footer">
-          <p>© 2025 Сервис обмена книгами</p>
-        </footer>
       </main>
     </div>
   );
