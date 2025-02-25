@@ -17,7 +17,7 @@
   padding: 0;
   box-sizing: border-box;
 }
-body, html {
+html, body {
   height: 100%;
   font-family: 'Open Sans', Arial, sans-serif;
   background: var(--main-bg-color);
@@ -26,6 +26,18 @@ body, html {
 a {
   text-decoration: none;
   color: inherit;
+}
+
+/* ======================
+   Адаптивная типографика
+   ====================== */
+/* 
+   Используем флюидный (гибкий) подход:
+   font-size: clamp(минимум, предпочтение (vw), максимум);
+   При ширине экрана 320px -> ~12px, при большой ширине -> до 24px.
+*/
+html {
+  font-size: clamp(12px, 1.2vw, 24px);
 }
 
 /* ======================
@@ -45,7 +57,8 @@ a {
   color: var(--sidebar-text-color);
   display: flex;
   flex-direction: column;
-  padding-top: 20px;
+  /* Высота на всю страницу, чтобы футер лег в самый низ */
+  height: 100vh;
 }
 .side-menu .logo-block {
   padding: 20px;
@@ -53,7 +66,12 @@ a {
   font-size: 1.4rem;
   font-weight: bold;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  margin-bottom: 20px;
+  margin-bottom: 0; /* Уберём большой отступ, чтобы меню было ближе */
+}
+.side-menu nav {
+  /* Меню располагается сразу под logo-block */
+  padding-top: 20px;
+  flex: 1; /* чтобы меню могло тянуться по высоте */
 }
 .side-menu ul {
   list-style: none;
@@ -69,8 +87,17 @@ a {
   background: rgba(255, 255, 255, 0.1);
 }
 
+/* Футер внутри левой панели, "прижат" к низу */
+.side-menu .footer {
+  padding: 20px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--sidebar-text-color);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
 /* ======================
-   Правая часть (main + header + footer)
+   Правая часть (main + header)
    ====================== */
 .main-content {
   flex: 1;
@@ -98,14 +125,6 @@ a {
   padding: 30px;
 }
 
-/* Подвал */
-.footer {
-  background: var(--sidebar-bg-color);
-  color: var(--sidebar-text-color);
-  text-align: center;
-  padding: 15px 0;
-}
-
 /* ======================
    Кнопки (общий стиль)
    ====================== */
@@ -117,7 +136,7 @@ button {
   border-radius: 4px;
   cursor: pointer;
   transition: background 0.3s;
-  font-size: 1rem;
+  font-size: 1rem; /* будет масштабироваться за счёт font-size html */
 }
 button:hover {
   background: var(--accent-color-hover);
@@ -234,15 +253,79 @@ button:hover {
   border: 1px solid #ddd;
   margin-bottom: 20px;
 }
-
-/* Чтобы заголовки внутри были видны */
-.give-column h3, .get-column h3, .address-block h3 {
-  margin-bottom: 15px;
+.step-content {
+  margin-bottom: 20px;
+}
+.step-navigation {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+.status-message {
+  margin-top: 15px;
+  color: green;
+  font-weight: bold;
 }
 
 /* ======================
-   Дополнительные стили
+   Страница профиля
    ====================== */
+.profile-page {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.15);
+}
+
+/* ======================
+   Страница "Мои обмены"
+   ====================== */
+.my-exchanges-page {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.15);
+}
 .sub-block {
   margin-top: 20px;
+}
+
+/* ======================
+   Страница "Обратная связь"
+   ====================== */
+.feedback-page {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.15);
+}
+
+/* ======================
+   Страницы авторизации и регистрации
+   ====================== */
+.registration-page, .login-page {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 20px auto;
+  max-width: 500px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.15);
+}
+.registration-page h2, .login-page h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.registration-page form, .login-page form {
+  display: flex;
+  flex-direction: column;
+}
+.registration-page form p, .login-page form p {
+  margin-top: 10px;
+}
+
+/* Отдельный класс для ошибок (красный) */
+.error-message {
+  margin-top: 10px;
+  color: red;
+  font-weight: bold;
 }
