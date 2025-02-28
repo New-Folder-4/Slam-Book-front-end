@@ -1,6 +1,3 @@
-/* ======================
-   Цветовая схема
-   ====================== */
 :root {
   --main-bg-color: #f3f6fb;
   --sidebar-bg-color: #2c3e50;
@@ -11,7 +8,6 @@
   --white-color: #fff;
 }
 
-/* Сброс базовых стилей */
 * {
   margin: 0;
   padding: 0;
@@ -23,8 +19,6 @@ html, body {
   color: var(--text-color);
   font-family: 'Open Sans', Arial, sans-serif;
 
-  /* Запрещаем горизонтальную прокрутку всей страницы,
-     чтобы скролл был только в меню на мобильных */
   overflow-x: hidden;
 }
 a {
@@ -32,25 +26,15 @@ a {
   color: inherit;
 }
 
-/* ======================
-   Флюидный размер шрифта
-   ====================== */
-/* Минимум 14px, максимум 20px, плавно за счёт vw */
 html {
   font-size: clamp(14px, 1.4vw, 20px);
 }
 
-/* ======================
-   Общий лэйаут
-   ====================== */
 .app-container {
   display: flex;
   min-height: 100vh;
 }
 
-/* ======================
-   Левая панель (desktop) 
-   ====================== */
 .side-menu {
   width: 220px;
   background: var(--sidebar-bg-color);
@@ -70,8 +54,8 @@ html {
 }
 .side-menu ul {
   list-style: none;
-  display: block; /* desktop: вертикальный список */
-  overflow: hidden; /* desktop: без горизонтального скролла */
+  display: block; 
+  overflow: hidden; 
 }
 .side-menu li a {
   display: block;
@@ -82,7 +66,7 @@ html {
 .side-menu li a:hover {
   background: rgba(255, 255, 255, 0.1);
 }
-/* Копирайт внизу левой панели (desktop) */
+
 .side-menu .footer {
   padding: 20px;
   text-align: center;
@@ -90,16 +74,12 @@ html {
   border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* ======================
-   Правая часть
-   ====================== */
 .main-content {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-/* Верхняя шапка */
 .top-header {
   background: var(--white-color);
   padding: 10px 20px;
@@ -113,13 +93,11 @@ html {
   margin-left: 15px;
 }
 
-/* Основной контент */
 .page-content {
   flex: 1;
   padding: 30px;
 }
 
-/* Кнопки (общий стиль) */
 button {
   background: var(--accent-color);
   color: #fff;
@@ -134,16 +112,12 @@ button:hover {
   background: var(--accent-color-hover);
 }
 
-/* ======================
-   Главная страница (Home)
-   ====================== */
 .home-page {
   display: flex;
   flex-direction: column;
   gap: 40px;
 }
 
-/* Hero-секция */
 .hero-section {
   background: linear-gradient(to right, #3498db, #8e44ad);
   color: #fff;
@@ -170,7 +144,6 @@ button:hover {
   background: #ecf0f1;
 }
 
-/* Статистика на главной */
 .stats-section {
   display: flex;
   justify-content: space-around;
@@ -196,9 +169,6 @@ button:hover {
   color: #666;
 }
 
-/* ======================
-   Общие стили форм
-   ====================== */
 .form-group {
   margin-bottom: 15px;
 }
@@ -217,9 +187,6 @@ button:hover {
   font: inherit;
 }
 
-/* ======================
-   "Начать обмен" (StartExchange)
-   ====================== */
 .start-exchange-game {
   background: #fff;
   padding: 20px;
@@ -260,9 +227,6 @@ button:hover {
   font-weight: bold;
 }
 
-/* ======================
-   Страница профиля
-   ====================== */
 .profile-page {
   background: #fff;
   padding: 20px;
@@ -270,9 +234,6 @@ button:hover {
   box-shadow: 0 1px 5px rgba(0,0,0,0.15);
 }
 
-/* ======================
-   Страница "Мои обмены"
-   ====================== */
 .my-exchanges-page {
   background: #fff;
   padding: 20px;
@@ -283,9 +244,6 @@ button:hover {
   margin-top: 20px;
 }
 
-/* ======================
-   Страница "Обратная связь"
-   ====================== */
 .feedback-page {
   background: #fff;
   padding: 20px;
@@ -293,9 +251,6 @@ button:hover {
   box-shadow: 0 1px 5px rgba(0,0,0,0.15);
 }
 
-/* ======================
-   Страница "Регистрация" в 2 колонки (desktop)
-   ====================== */
 .registration-page form {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -305,7 +260,6 @@ button:hover {
   grid-column: 1 / 3;
 }
 
-/* На телефонах (<= 768px) - 1 колонка */
 @media (max-width: 768px) {
   .registration-page form {
     display: flex;
@@ -313,9 +267,6 @@ button:hover {
   }
 }
 
-/* ======================
-   Страница авторизации (Login)
-   ====================== */
 .login-page {
   background: #fff;
   padding: 20px;
@@ -341,30 +292,21 @@ button:hover {
   font-weight: bold;
 }
 
-/* ======================
-   Мобильная адаптация
-   ====================== */
 @media (max-width: 768px) {
-  /* Переход к верхней панели */
   .app-container {
     flex-direction: column;
   }
 
-  /* 
-     Вся левая панель (LOGO, меню, копирайт) 
-     располагается в одном ряду, прокручивается по горизонтали
-  */
   .side-menu {
     width: 100%;
     height: auto;
     flex-direction: row;
     align-items: center;
-    overflow-x: auto; /* ключ: скролл по горизонтали */
+    overflow-x: auto; 
     white-space: nowrap;
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   }
 
-  /* Логотип, меню, копирайт - inline-block, чтобы быть в одной линии */
   .side-menu .logo-block,
   .side-menu nav,
   .side-menu .footer {
@@ -374,9 +316,8 @@ button:hover {
     border-bottom: none;
   }
 
-  /* Меню (nav) */
   .side-menu ul {
-    display: inline-flex; /* пункты меню в ряд */
+    display: inline-flex; 
     flex-direction: row;
     margin: 0;
     padding: 0;
@@ -388,12 +329,10 @@ button:hover {
     padding: 15px 10px;
   }
 
-  /* Убираем границу в footer, т.к. всё в одной строке */
   .side-menu .footer {
     border-top: none;
   }
 
-  /* Основной контент на всю ширину */
   .main-content {
     width: 100%;
   }
@@ -401,10 +340,4 @@ button:hover {
     padding: 20px;
   }
 
-  /* Пример "перелистывания" при наведении (по желанию):
-     .side-menu li a:hover {
-       transform: perspective(400px) rotateY(-8deg);
-       transition: transform 0.5s;
-     }
-  */
 }

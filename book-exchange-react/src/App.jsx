@@ -12,7 +12,6 @@ import Login from './Login.jsx';
 function App() {
   return (
     <div className="app-container">
-      {/* Левая (или верхняя) панель с меню + копирайт внизу */}
       <aside className="side-menu">
         <div className="logo-block">
           <span className="logo">LOGO</span>
@@ -33,7 +32,6 @@ function App() {
         </footer>
       </aside>
 
-      {/* Правая (или нижняя) часть: контент */}
       <main className="main-content">
         <header className="top-header">
           <div className="user-block">

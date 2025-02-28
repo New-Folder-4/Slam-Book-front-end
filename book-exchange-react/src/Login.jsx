@@ -5,7 +5,6 @@ function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  // Единое сообщение и флаг, показывающий ошибку/успех
   const [message, setMessage] = useState('');
   const [isError, setIsError] = useState(false);
 
@@ -13,7 +12,6 @@ function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Отправляем данные на backend в формате JSON
     fetch('http://localhost:3000/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -22,12 +20,10 @@ function Login() {
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
-          // Успешная авторизация
           setIsError(false);
           setMessage('Вы успешно авторизованы (демо).');
           setTimeout(() => navigate('/'), 1500);
         } else {
-          // Ошибка авторизации
           setIsError(true);
           setMessage(data.error || 'Неверный email или пароль');
         }
@@ -62,7 +58,6 @@ function Login() {
         </div>
         <button type="submit">Войти</button>
 
-        {/* Отображение сообщения (ошибки или статуса) */}
         {message && (
           <p className={isError ? 'error-message' : 'status-message'}>
             {message}
