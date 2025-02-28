@@ -4,17 +4,14 @@ import React, { useState } from 'react';
 function StartExchange() {
   const [step, setStep] = useState(1);
 
-  // Шаг 1: "Хочу обменять"
   const [giveTitle, setGiveTitle] = useState('');
   const [giveAuthor, setGiveAuthor] = useState('');
   const [giveYear, setGiveYear] = useState('');
   const [giveISBN, setGiveISBN] = useState('');
 
-  // Шаг 2: "Хочу получить"
   const [getCategory, setGetCategory] = useState('фантастика');
   const [getTitle, setGetTitle] = useState('');
 
-  // Шаг 3: "Адрес доставки"
   const [city, setCity] = useState('');
   const [street, setStreet] = useState('');
   const [house, setHouse] = useState('');
@@ -22,7 +19,6 @@ function StartExchange() {
   const [message, setMessage] = useState('');
 
   const handleNext = () => {
-    // Простая валидация каждого шага
     if (step === 1) {
       if (!giveTitle.trim() || !giveAuthor.trim() || !giveYear.trim()) {
         setMessage('Пожалуйста, заполните все обязательные поля для книги, которую отдаёте.');
@@ -45,13 +41,11 @@ function StartExchange() {
   };
 
   const handleSubmit = () => {
-    // Здесь можно добавить финальную валидацию адреса доставки
     if (!city.trim() || !street.trim() || !house.trim()) {
       setMessage('Пожалуйста, заполните все поля адреса доставки.');
       return;
     }
     setMessage('Заявка на обмен успешно создана (демо)!');
-    // Сброс полей формы
     setGiveTitle('');
     setGiveAuthor('');
     setGiveYear('');

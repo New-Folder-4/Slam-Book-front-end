@@ -7,7 +7,6 @@ function Home() {
 
   return (
     <div className="home-page">
-      {/* Hero-секция с кнопкой */}
       <div className="hero-section">
         <h2>Добро пожаловать в Book Exchange</h2>
         <p>Обмен книгами – современный способ дать книгам вторую жизнь.</p>
@@ -16,7 +15,6 @@ function Home() {
         </button>
       </div>
 
-      {/* Небольшая статистика для наглядности */}
       <div className="stats-section">
         <div className="stat-item">
           <span className="stat-number">1200+</span>

@@ -17,7 +17,6 @@ function Registration() {
   const [addrStructure, setAddrStructure] = useState('');
   const [addrApart, setAddrApart] = useState('');
 
-  // Единое сообщение и флаг для статуса (ошибка/успех)
   const [message, setMessage] = useState('');
   const [isError, setIsError] = useState(false);
 
@@ -33,7 +32,6 @@ function Registration() {
     }
     if (!email.includes('@')) return false;
     if (password.length < 8) return false;
-    // Доп. проверки по формату пароля, индексу и т.д. при необходимости
     return true;
   };
 
@@ -46,7 +44,6 @@ function Registration() {
       return;
     }
 
-    // Отправляем данные на backend в формате JSON
     fetch('http://localhost:3000/api/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -63,7 +60,6 @@ function Registration() {
         addrHouse,
         addrStructure,
         addrApart
-        // Файл (avatar) отправляется иначе, но в данном демо опустим
       }),
     })
       .then((res) => res.json())
@@ -71,7 +67,6 @@ function Registration() {
         if (data.success) {
           setIsError(false);
           setMessage('Регистрация прошла успешно! Проверьте e-mail для подтверждения.');
-          // Сброс полей формы
           setLastName('');
           setFirstName('');
           setSecondName('');
@@ -85,7 +80,6 @@ function Registration() {
           setAddrHouse('');
           setAddrStructure('');
           setAddrApart('');
-          // Переход на страницу логина
           setTimeout(() => navigate('/login'), 2000);
         } else {
           setIsError(true);
