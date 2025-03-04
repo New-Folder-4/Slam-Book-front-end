@@ -18,23 +18,19 @@ html, body {
   background: var(--main-bg-color);
   color: var(--text-color);
   font-family: 'Open Sans', Arial, sans-serif;
-
   overflow-x: hidden;
 }
 a {
   text-decoration: none;
   color: inherit;
 }
-
 html {
   font-size: clamp(14px, 1.4vw, 20px);
 }
-
 .app-container {
   display: flex;
   min-height: 100vh;
 }
-
 .side-menu {
   width: 220px;
   background: var(--sidebar-bg-color);
@@ -54,8 +50,8 @@ html {
 }
 .side-menu ul {
   list-style: none;
-  display: block; 
-  overflow: hidden; 
+  display: block;
+  overflow: hidden;
 }
 .side-menu li a {
   display: block;
@@ -66,38 +62,34 @@ html {
 .side-menu li a:hover {
   background: rgba(255, 255, 255, 0.1);
 }
-
 .side-menu .footer {
   padding: 20px;
   text-align: center;
   font-size: 0.9rem;
   border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
-
 .main-content {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
-
 .top-header {
-  background: var(--white-color);
+  background: var(--sidebar-bg-color);
+  color: var(--sidebar-text-color);
   padding: 10px 20px;
-  border-bottom: 1px solid #ddd;
+  border-bottom: none;
 }
 .user-block {
   text-align: right;
 }
 .user-block .auth-links a {
-  color: var(--accent-color);
+  color: var(--sidebar-text-color);
   margin-left: 15px;
 }
-
 .page-content {
   flex: 1;
   padding: 30px;
 }
-
 button {
   background: var(--accent-color);
   color: #fff;
@@ -111,13 +103,11 @@ button {
 button:hover {
   background: var(--accent-color-hover);
 }
-
 .home-page {
   display: flex;
   flex-direction: column;
   gap: 40px;
 }
-
 .hero-section {
   background: linear-gradient(to right, #3498db, #8e44ad);
   color: #fff;
@@ -143,7 +133,6 @@ button:hover {
 .hero-section button:hover {
   background: #ecf0f1;
 }
-
 .stats-section {
   display: flex;
   justify-content: space-around;
@@ -168,7 +157,6 @@ button:hover {
   font-size: clamp(0.9rem, 3vw, 1rem);
   color: #666;
 }
-
 .form-group {
   margin-bottom: 15px;
 }
@@ -186,7 +174,12 @@ button:hover {
   border-radius: 4px;
   font: inherit;
 }
-
+input[type="file"] {
+  padding: 6px;
+  background: #f9f9f9;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
 .start-exchange-game {
   background: #fff;
   padding: 20px;
@@ -226,14 +219,12 @@ button:hover {
   color: green;
   font-weight: bold;
 }
-
 .profile-page {
   background: #fff;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 1px 5px rgba(0,0,0,0.15);
 }
-
 .my-exchanges-page {
   background: #fff;
   padding: 20px;
@@ -243,14 +234,20 @@ button:hover {
 .sub-block {
   margin-top: 20px;
 }
-
 .feedback-page {
   background: #fff;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 1px 5px rgba(0,0,0,0.15);
 }
-
+.registration-page {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.15);
+  margin: 20px auto;
+  max-width: 1200px;
+}
 .registration-page form {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -259,14 +256,12 @@ button:hover {
 .registration-page form h3 {
   grid-column: 1 / 3;
 }
-
 @media (max-width: 768px) {
   .registration-page form {
     display: flex;
     flex-direction: column;
   }
 }
-
 .login-page {
   background: #fff;
   padding: 20px;
@@ -291,22 +286,86 @@ button:hover {
   color: red;
   font-weight: bold;
 }
-
+.admin-panel {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.15);
+}
+.admin-panel h2 {
+  margin-bottom: 10px;
+}
+.admin-panel .search-block {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+.admin-panel .search-block input {
+  width: 300px;
+  max-width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.admin-panel .user-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+.admin-panel .user-table th,
+.admin-panel .user-table td {
+  padding: 10px;
+  border: 1px solid #ccc;
+  text-align: left;
+  position: relative;
+  white-space: nowrap;
+}
+.admin-panel .user-table th:nth-child(1),
+.admin-panel .user-table td:nth-child(1) {
+  width: 5%;
+}
+.admin-panel .user-table th:nth-child(2),
+.admin-panel .user-table td:nth-child(2) {
+  width: auto;
+}
+.admin-panel .user-table th:nth-child(3),
+.admin-panel .user-table td:nth-child(3) {
+  width: auto;
+}
+.admin-panel .user-table th:nth-child(4),
+.admin-panel .user-table td:nth-child(4) {
+  width: auto;
+}
+.admin-panel .user-table th {
+  background: #f9f9f9;
+}
+.admin-panel .user-table button {
+  margin-left: 0;
+}
+.resizer {
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: transparent;
+  z-index: 10;
+}
 @media (max-width: 768px) {
   .app-container {
     flex-direction: column;
   }
-
   .side-menu {
     width: 100%;
     height: auto;
     flex-direction: row;
     align-items: center;
-    overflow-x: auto; 
+    overflow-x: auto;
     white-space: nowrap;
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   }
-
   .side-menu .logo-block,
   .side-menu nav,
   .side-menu .footer {
@@ -315,9 +374,8 @@ button:hover {
     padding: 20px;
     border-bottom: none;
   }
-
   .side-menu ul {
-    display: inline-flex; 
+    display: inline-flex;
     flex-direction: row;
     margin: 0;
     padding: 0;
@@ -328,16 +386,29 @@ button:hover {
   .side-menu li a {
     padding: 15px 10px;
   }
-
   .side-menu .footer {
-    border-top: none;
+    display: none;
   }
-
   .main-content {
     width: 100%;
   }
   .page-content {
     padding: 20px;
   }
-
+  .mobile-footer {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    background: #fff;
+    color: #333;
+    padding: 10px 0;
+    border-top: 1px solid #ccc;
+    z-index: 9999;
+  }
+}
+.mobile-footer {
+  display: none;
 }
