@@ -9,7 +9,6 @@ function AdminPanel() {
   ]);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Задаём стартовые ширины столбцов так, чтобы при открытии выглядело как на скриншоте
   const [colWidths, setColWidths] = useState([40, 350, 120, 160]);
   const [draggingCol, setDraggingCol] = useState(-1);
   const [startX, setStartX] = useState(0);
