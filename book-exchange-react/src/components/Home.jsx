@@ -1,4 +1,3 @@
-// src/components/Home.jsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -8,7 +7,7 @@ function Home() {
   return (
     <div className="home-page">
       <div className="hero-section">
-        <h2>Добро пожаловать в Book Exchange</h2>
+        <h2>Добро пожаловать в Book Changer</h2>
         <p>Обмен книгами – современный способ дать книгам вторую жизнь.</p>
         <button onClick={() => navigate('/start-exchange')}>
           Начать обмен
