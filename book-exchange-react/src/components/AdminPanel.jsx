@@ -1,63 +1,63 @@
-// src/components/AdminPanel.jsx
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'
 
 function AdminPanel() {
   const [users, setUsers] = useState([
     { id: 1, name: 'UserOne', blocked: false },
     { id: 2, name: 'UserTwo', blocked: true },
-    { id: 3, name: 'UserThree', blocked: false },
-  ]);
-  const [searchTerm, setSearchTerm] = useState('');
-
-  const [colWidths, setColWidths] = useState([40, 350, 120, 160]);
-  const [draggingCol, setDraggingCol] = useState(-1);
-  const [startX, setStartX] = useState(0);
-  const [startWidth, setStartWidth] = useState(0);
+    { id: 3, name: 'UserThree', blocked: false }
+  ])
+  const [searchTerm, setSearchTerm] = useState('')
+  const [colWidths, setColWidths] = useState([40, 350, 120, 160])
+  const [draggingCol, setDraggingCol] = useState(-1)
+  const [startX, setStartX] = useState(0)
+  const [startWidth, setStartWidth] = useState(0)
 
   const handleBlockToggle = (userId) => {
     setUsers((prev) =>
       prev.map((u) =>
         u.id === userId ? { ...u, blocked: !u.blocked } : u
       )
-    );
-  };
+    )
+  }
 
   const filteredUsers = users.filter((u) =>
     u.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  )
 
   const onMouseDown = (e, index) => {
-    setDraggingCol(index);
-    setStartX(e.clientX);
-    setStartWidth(colWidths[index]);
-  };
+    setDraggingCol(index)
+    setStartX(e.clientX)
+    setStartWidth(colWidths[index])
+    e.stopPropagation()
+    e.preventDefault()
+  }
 
   const onMouseMove = (e) => {
-    if (draggingCol === -1) return;
-    const delta = e.clientX - startX;
-    const newWidth = Math.max(startWidth + delta, 40);
+    if (draggingCol === -1) return
+    const delta = e.clientX - startX
+    const newWidth = Math.max(startWidth + delta, 40)
     setColWidths((prev) => {
-      const updated = [...prev];
-      updated[draggingCol] = newWidth;
-      return updated;
-    });
-  };
+      const updated = [...prev]
+      updated[draggingCol] = newWidth
+      return updated
+    })
+  }
 
   const onMouseUp = () => {
-    setDraggingCol(-1);
-  };
+    setDraggingCol(-1)
+  }
 
   useEffect(() => {
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mouseup', onMouseUp);
+    window.addEventListener('mousemove', onMouseMove)
+    window.addEventListener('mouseup', onMouseUp)
     return () => {
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('mouseup', onMouseUp);
-    };
-  }, [onMouseMove, onMouseUp]);
+      window.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('mouseup', onMouseUp)
+    }
+  }, [onMouseMove, onMouseUp])
 
   return (
-    <div className="admin-panel">
+    <div className="admin-panel page-fade-in">
       <h2>Админ-панель</h2>
       <p>Чат поддержки (демо). Здесь можно блокировать и разблокировать пользователей.</p>
       <div className="search-block">
@@ -72,28 +72,28 @@ function AdminPanel() {
       <table className="user-table" style={{ tableLayout: 'fixed' }}>
         <thead>
           <tr>
-            <th style={{ width: colWidths[0] }}>
+            <th style={{ width: colWidths[0] + 'px' }}>
               ID
               <span
                 className="resizer"
                 onMouseDown={(e) => onMouseDown(e, 0)}
               />
             </th>
-            <th style={{ width: colWidths[1] }}>
+            <th style={{ width: colWidths[1] + 'px' }}>
               Имя пользователя
               <span
                 className="resizer"
                 onMouseDown={(e) => onMouseDown(e, 1)}
               />
             </th>
-            <th style={{ width: colWidths[2] }}>
+            <th style={{ width: colWidths[2] + 'px' }}>
               Статус
               <span
                 className="resizer"
                 onMouseDown={(e) => onMouseDown(e, 2)}
               />
             </th>
-            <th style={{ width: colWidths[3] }}>
+            <th style={{ width: colWidths[3] + 'px' }}>
               Действие
               <span
                 className="resizer"
@@ -118,7 +118,7 @@ function AdminPanel() {
         </tbody>
       </table>
     </div>
-  );
+  )
 }
 
-export default AdminPanel;
+export default AdminPanel
