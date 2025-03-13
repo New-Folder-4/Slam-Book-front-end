@@ -48,6 +48,7 @@ function StartExchange() {
     }
     setMessage('Заявка на обмен успешно создана (демо)!')
     setIsError(false)
+
     setGiveTitle('')
     setGiveAuthor('')
     setGiveYear('')
@@ -61,14 +62,14 @@ function StartExchange() {
   }
 
   return (
-    <div className="start-exchange-game page-fade-in">
+    <div className="profile-page page-fade-in">
       <h2>Обмен книгами</h2>
       {step === 1 && (
         <div className="step-content">
           <h3>Шаг 1: Хочу обменять</h3>
           <div className="form-group">
             <label>Название книги:</label>
-            <input 
+            <input
               type="text"
               value={giveTitle}
               onChange={(e) => setGiveTitle(e.target.value)}
@@ -77,7 +78,7 @@ function StartExchange() {
           </div>
           <div className="form-group">
             <label>Автор:</label>
-            <input 
+            <input
               type="text"
               value={giveAuthor}
               onChange={(e) => setGiveAuthor(e.target.value)}
@@ -86,7 +87,7 @@ function StartExchange() {
           </div>
           <div className="form-group">
             <label>Год издания:</label>
-            <input 
+            <input
               type="number"
               value={giveYear}
               onChange={(e) => setGiveYear(e.target.value)}
@@ -95,7 +96,7 @@ function StartExchange() {
           </div>
           <div className="form-group">
             <label>ISBN (при наличии):</label>
-            <input 
+            <input
               type="text"
               value={giveISBN}
               onChange={(e) => setGiveISBN(e.target.value)}
@@ -125,7 +126,7 @@ function StartExchange() {
           </div>
           <div className="form-group">
             <label>Название (если конкретное):</label>
-            <input 
+            <input
               type="text"
               value={getTitle}
               onChange={(e) => setGetTitle(e.target.value)}
@@ -143,7 +144,7 @@ function StartExchange() {
           <h3>Шаг 3: Адрес доставки</h3>
           <div className="form-group">
             <label>Город:</label>
-            <input 
+            <input
               type="text"
               value={city}
               onChange={(e) => setCity(e.target.value)}
@@ -152,7 +153,7 @@ function StartExchange() {
           </div>
           <div className="form-group">
             <label>Улица:</label>
-            <input 
+            <input
               type="text"
               value={street}
               onChange={(e) => setStreet(e.target.value)}
@@ -161,7 +162,7 @@ function StartExchange() {
           </div>
           <div className="form-group">
             <label>Дом/Кв.:</label>
-            <input 
+            <input
               type="text"
               value={house}
               onChange={(e) => setHouse(e.target.value)}
