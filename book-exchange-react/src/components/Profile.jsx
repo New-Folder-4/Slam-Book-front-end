@@ -9,7 +9,6 @@ function Profile({ onAvatarSelect }) {
   const [uploadedAvatars, setUploadedAvatars] = useState([])
   const fileInputRef = useRef(null)
 
-  // Список аватарок (1..15), без повторений
   const avatarList = [
     '/avatars/avatar1.png',
     '/avatars/avatar2.png',
@@ -27,6 +26,38 @@ function Profile({ onAvatarSelect }) {
     '/avatars/avatar14.png',
     '/avatars/avatar15.png'
   ]
+
+  // Разрешаем только буквы + служебные
+  const onlyLetters = (e) => {
+    if (
+      !(
+        e.key === 'Backspace' ||
+        e.key === 'Delete' ||
+        e.key === 'Tab' ||
+        e.key === 'ArrowLeft' ||
+        e.key === 'ArrowRight' ||
+        /[A-Za-zА-Яа-яЁё\s-]/.test(e.key)
+      )
+    ) {
+      e.preventDefault()
+    }
+  }
+
+  // Разрешаем только латинские буквы, цифры, @ . _ - + служебные
+  const onlyEmailChars = (e) => {
+    if (
+      !(
+        e.key === 'Backspace' ||
+        e.key === 'Delete' ||
+        e.key === 'Tab' ||
+        e.key === 'ArrowLeft' ||
+        e.key === 'ArrowRight' ||
+        /[A-Za-z0-9@._-]/.test(e.key)
+      )
+    ) {
+      e.preventDefault()
+    }
+  }
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -73,15 +104,21 @@ function Profile({ onAvatarSelect }) {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Ваше имя"
+            pattern="^[A-Za-zА-Яа-яЁё\s-]+$"
+            title="Только буквы, пробелы и дефисы"
+            onKeyDown={onlyLetters}
           />
         </div>
         <div className="form-group">
           <label>Email:</label>
           <input
-            type="email"
+            type="text"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Ваш email"
+            pattern="^[A-Za-z0-9@._-]+$"
+            title="Только латиница, цифры, символы @._-"
+            onKeyDown={onlyEmailChars}
           />
         </div>
         <div className="form-group">

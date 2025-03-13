@@ -14,6 +14,38 @@ function StartExchange() {
   const [message, setMessage] = useState('')
   const [isError, setIsError] = useState(false)
 
+  // Разрешаем только буквы (латиница, кириллица), пробелы, дефисы + служебные
+  const onlyLetters = (e) => {
+    if (
+      !(
+        e.key === 'Backspace' ||
+        e.key === 'Delete' ||
+        e.key === 'Tab' ||
+        e.key === 'ArrowLeft' ||
+        e.key === 'ArrowRight' ||
+        /[A-Za-zА-Яа-яЁё\s-]/.test(e.key)
+      )
+    ) {
+      e.preventDefault()
+    }
+  }
+
+  // Разрешаем только цифры 0-9 + служебные
+  const onlyDigits = (e) => {
+    if (
+      !(
+        e.key === 'Backspace' ||
+        e.key === 'Delete' ||
+        e.key === 'Tab' ||
+        e.key === 'ArrowLeft' ||
+        e.key === 'ArrowRight' ||
+        /^[0-9]$/.test(e.key)
+      )
+    ) {
+      e.preventDefault()
+    }
+  }
+
   const handleNext = () => {
     if (step === 1) {
       if (!giveTitle.trim() || !giveAuthor.trim() || !giveYear.trim()) {
@@ -64,6 +96,7 @@ function StartExchange() {
   return (
     <div className="profile-page page-fade-in">
       <h2>Обмен книгами</h2>
+
       {step === 1 && (
         <div className="step-content">
           <h3>Шаг 1: Хочу обменять</h3>
@@ -83,15 +116,21 @@ function StartExchange() {
               value={giveAuthor}
               onChange={(e) => setGiveAuthor(e.target.value)}
               placeholder="Булгаков"
+              pattern="^[A-Za-zА-Яа-яЁё\s-]+$"
+              title="Только буквы, пробелы и дефисы"
+              onKeyDown={onlyLetters}
             />
           </div>
           <div className="form-group">
             <label>Год издания:</label>
             <input
-              type="number"
+              type="text"
               value={giveYear}
               onChange={(e) => setGiveYear(e.target.value)}
               placeholder="1967"
+              pattern="^[0-9]+$"
+              title="Только цифры"
+              onKeyDown={onlyDigits}
             />
           </div>
           <div className="form-group">
@@ -101,6 +140,10 @@ function StartExchange() {
               value={giveISBN}
               onChange={(e) => setGiveISBN(e.target.value)}
               placeholder="ISBN"
+              pattern="^[0-9]+$"
+              maxLength={13}
+              title="Только цифры (до 13 символов)"
+              onKeyDown={onlyDigits}
             />
           </div>
           <div className="step-navigation">
@@ -108,6 +151,7 @@ function StartExchange() {
           </div>
         </div>
       )}
+
       {step === 2 && (
         <div className="step-content">
           <h3>Шаг 2: Хочу получить</h3>
@@ -139,6 +183,7 @@ function StartExchange() {
           </div>
         </div>
       )}
+
       {step === 3 && (
         <div className="step-content">
           <h3>Шаг 3: Адрес доставки</h3>
@@ -149,6 +194,9 @@ function StartExchange() {
               value={city}
               onChange={(e) => setCity(e.target.value)}
               placeholder="Москва"
+              pattern="^[A-Za-zА-Яа-яЁё\s-]+$"
+              title="Только буквы, пробелы и дефисы"
+              onKeyDown={onlyLetters}
             />
           </div>
           <div className="form-group">
@@ -158,6 +206,9 @@ function StartExchange() {
               value={street}
               onChange={(e) => setStreet(e.target.value)}
               placeholder="Тверская"
+              pattern="^[A-Za-zА-Яа-яЁё\s-]+$"
+              title="Только буквы, пробелы и дефисы"
+              onKeyDown={onlyLetters}
             />
           </div>
           <div className="form-group">
@@ -167,6 +218,9 @@ function StartExchange() {
               value={house}
               onChange={(e) => setHouse(e.target.value)}
               placeholder="10, кв. 12"
+              pattern="^[0-9]+$"
+              title="Только цифры"
+              onKeyDown={onlyDigits}
             />
           </div>
           <div className="step-navigation">
@@ -175,6 +229,7 @@ function StartExchange() {
           </div>
         </div>
       )}
+
       {message && (
         <p className={isError ? 'error-message' : 'status-message'}>
           {message}

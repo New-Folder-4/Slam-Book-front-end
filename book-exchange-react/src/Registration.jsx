@@ -16,11 +16,62 @@ function Registration() {
   const [addrApart, setAddrApart] = useState('')
   const [message, setMessage] = useState('')
   const [isError, setIsError] = useState(false)
+
   const navigate = useNavigate()
 
+  const onlyLetters = (e) => {
+    if (
+      !(
+        e.key === 'Backspace' ||
+        e.key === 'Delete' ||
+        e.key === 'Tab' ||
+        e.key === 'ArrowLeft' ||
+        e.key === 'ArrowRight' ||
+        /[A-Za-zА-Яа-яЁё\s-]/.test(e.key)
+      )
+    ) {
+      e.preventDefault()
+    }
+  }
+
+  const onlyEmailChars = (e) => {
+    if (
+      !(
+        e.key === 'Backspace' ||
+        e.key === 'Delete' ||
+        e.key === 'Tab' ||
+        e.key === 'ArrowLeft' ||
+        e.key === 'ArrowRight' ||
+        /[A-Za-z0-9@._-]/.test(e.key)
+      )
+    ) {
+      e.preventDefault()
+    }
+  }
+
+  const onlyDigits = (e) => {
+    if (
+      !(
+        e.key === 'Backspace' ||
+        e.key === 'Delete' ||
+        e.key === 'Tab' ||
+        e.key === 'ArrowLeft' ||
+        e.key === 'ArrowRight' ||
+        /^[0-9]$/.test(e.key)
+      )
+    ) {
+      e.preventDefault()
+    }
+  }
+
   const validateRegistrationFields = () => {
-    if (!lastName.trim() || !firstName.trim() || !email.trim() ||
-        !username.trim() || !password.trim()) {
+    if (
+      !lastName.trim() ||
+      !firstName.trim() ||
+      !email.trim() ||
+      !username.trim() ||
+      !password.trim()
+    ) {
       return false
     }
     if (!email.includes('@')) return false
@@ -35,6 +86,7 @@ function Registration() {
       setMessage('Пожалуйста, заполните все обязательные поля корректно.')
       return
     }
+
     fetch('http://localhost:3000/api/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -93,7 +145,10 @@ function Registration() {
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
             placeholder="Иванов"
-            maxLength="50"
+            maxLength={50}
+            pattern="^[A-Za-zА-Яа-яЁё\s-]+$"
+            title="Только буквы, пробелы и дефисы"
+            onKeyDown={onlyLetters}
           />
         </div>
         <div className="form-group">
@@ -103,7 +158,10 @@ function Registration() {
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
             placeholder="Иван"
-            maxLength="25"
+            maxLength={25}
+            pattern="^[A-Za-zА-Яа-яЁё\s-]+$"
+            title="Только буквы, пробелы и дефисы"
+            onKeyDown={onlyLetters}
           />
         </div>
         <div className="form-group">
@@ -113,16 +171,22 @@ function Registration() {
             value={secondName}
             onChange={(e) => setSecondName(e.target.value)}
             placeholder="Иванович"
-            maxLength="25"
+            maxLength={25}
+            pattern="^[A-Za-zА-Яа-яЁё\s-]*$"
+            title="Только буквы, пробелы и дефисы"
+            onKeyDown={onlyLetters}
           />
         </div>
         <div className="form-group">
           <label>Email*:</label>
           <input
-            type="email"
+            type="text"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="example@mail.ru"
+            pattern="^[A-Za-z0-9@._-]+$"
+            title="Только латиница, цифры, символы @._-"
+            onKeyDown={onlyEmailChars}
           />
           <small>На этот адрес будет отправлено письмо для подтверждения</small>
         </div>
@@ -133,7 +197,9 @@ function Registration() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder="Ваш ник"
-            maxLength="20"
+            maxLength={20}
+            pattern="^[A-Za-z0-9_]+$"
+            title="Только латинские буквы, цифры и подчёркивания (до 20 символов)"
           />
         </div>
         <div className="form-group">
@@ -154,7 +220,10 @@ function Registration() {
             value={addrIndex}
             onChange={(e) => setAddrIndex(e.target.value)}
             placeholder="6 цифр"
-            maxLength="6"
+            maxLength={6}
+            pattern="^[0-9]+$"
+            title="Только цифры (6 символов)"
+            onKeyDown={onlyDigits}
           />
         </div>
         <div className="form-group">
@@ -164,7 +233,10 @@ function Registration() {
             value={addrCity}
             onChange={(e) => setAddrCity(e.target.value)}
             placeholder="Город"
-            maxLength="15"
+            maxLength={15}
+            pattern="^[A-Za-zА-Яа-яЁё\s-]+$"
+            title="Только буквы, пробелы и дефисы"
+            onKeyDown={onlyLetters}
           />
         </div>
         <div className="form-group">
@@ -174,7 +246,10 @@ function Registration() {
             value={addrStreet}
             onChange={(e) => setAddrStreet(e.target.value)}
             placeholder="Улица"
-            maxLength="25"
+            maxLength={25}
+            pattern="^[A-Za-zА-Яа-яЁё\s-]+$"
+            title="Только буквы, пробелы и дефисы"
+            onKeyDown={onlyLetters}
           />
         </div>
         <div className="form-group">
@@ -184,7 +259,10 @@ function Registration() {
             value={addrHouse}
             onChange={(e) => setAddrHouse(e.target.value)}
             placeholder="Номер дома"
-            maxLength="5"
+            maxLength={5}
+            pattern="^[0-9]+$"
+            title="Только цифры"
+            onKeyDown={onlyDigits}
           />
         </div>
         <div className="form-group">
@@ -194,7 +272,10 @@ function Registration() {
             value={addrStructure}
             onChange={(e) => setAddrStructure(e.target.value)}
             placeholder="Номер строения"
-            maxLength="2"
+            maxLength={2}
+            pattern="^[0-9]*$"
+            title="Только цифры"
+            onKeyDown={onlyDigits}
           />
         </div>
         <div className="form-group">
@@ -204,7 +285,10 @@ function Registration() {
             value={addrApart}
             onChange={(e) => setAddrApart(e.target.value)}
             placeholder="Номер квартиры"
-            maxLength="3"
+            maxLength={3}
+            pattern="^[0-9]*$"
+            title="Только цифры"
+            onKeyDown={onlyDigits}
           />
         </div>
         <div className="save-btn-container">
