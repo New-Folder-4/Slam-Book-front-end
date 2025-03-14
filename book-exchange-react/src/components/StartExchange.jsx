@@ -2,19 +2,106 @@ import React, { useState } from 'react'
 
 function StartExchange() {
   const [step, setStep] = useState(1)
+  const [errors, setErrors] = useState([])
+
   const [giveTitle, setGiveTitle] = useState('')
   const [giveAuthor, setGiveAuthor] = useState('')
   const [giveYear, setGiveYear] = useState('')
   const [giveISBN, setGiveISBN] = useState('')
-  const [getCategory, setGetCategory] = useState('фантастика')
-  const [getTitle, setGetTitle] = useState('')
+
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectAll, setSelectAll] = useState(false)
+  const [selectedGenres, setSelectedGenres] = useState([])
+
   const [city, setCity] = useState('')
   const [street, setStreet] = useState('')
   const [house, setHouse] = useState('')
-  const [message, setMessage] = useState('')
-  const [isError, setIsError] = useState(false)
 
-  // Разрешаем только буквы (латиница, кириллица), пробелы, дефисы + служебные
+  const allGenres = [
+    'Эпическое фэнтези',
+    'Темное фэнтези',
+    'Урбан-фэнтези',
+    'Магический реализм',
+    'ЛитРПГ',
+    'Мифологическое фэнтези',
+    'Космическая опера',
+    'Киберпанк',
+    'Стимпанк',
+    'Биопанк',
+    'Соларпанк',
+    'Посткиберпанк',
+    'Классический детектив',
+    'Нуар',
+    'Полицейский детектив',
+    'Шпионский детектив',
+    'Судебный детектив',
+    'Психологический триллер',
+    'Шпионский триллер',
+    'Юридический триллер',
+    'Военный триллер',
+    'Политический триллер',
+    'Готический ужас',
+    'Психологический ужас',
+    'Слэшер',
+    'Космический ужас',
+    'Сверхъестественный ужас',
+    'Паранормальная мистика',
+    'Эзотерическая литература',
+    'Любовный роман',
+    'Исторический роман',
+    'Современный роман',
+    'Психологический роман',
+    'Социальный роман',
+    'Эротический роман',
+    'Молодёжный роман',
+    'Морские приключения',
+    'Путешествия',
+    'Экспедиционный роман',
+    'Социальный реализм',
+    'Психологический реализм',
+    'Антиутопия',
+    'Постапокалиптическая литература',
+    'Поток сознания',
+    'Постмодернизм',
+    'Абсурдизм',
+    'Сатирическая проза',
+    'Ироническая литература',
+    'Комедийный роман',
+    'Биографии и автобиографии',
+    'Мемуары',
+    'Документальная литература',
+    'Научно-популярная литература',
+    'Публицистика и журналистика',
+    'Историческая литература',
+    'Философская литература',
+    'Психология',
+    'Экономика и финансы',
+    'Саморазвитие и мотивация',
+    'Путешествия и путевые заметки',
+    'Кулинария',
+    'Искусствоведение',
+    'Сказки',
+    'Детские рассказы',
+    'Подростковая литература (YA)',
+    'Иллюстрированная литература',
+    'Лирическая поэзия',
+    'Эпическая поэзия',
+    'Визуальная поэзия',
+    'Экспериментальная поэзия',
+    'Театральные пьесы',
+    'Мюзиклы',
+    'Сценарии',
+    'Супергеройские комиксы',
+    'Инди-комиксы',
+    'Манга',
+    'Веб-комиксы',
+    'Народные сказания',
+    'Легенды и мифы',
+    'Пословицы и поговорки',
+    'Электронная литература',
+    'Интерактивные рассказы'
+  ]
+
   const onlyLetters = (e) => {
     if (
       !(
@@ -30,7 +117,6 @@ function StartExchange() {
     }
   }
 
-  // Разрешаем только цифры 0-9 + служебные
   const onlyDigits = (e) => {
     if (
       !(
@@ -46,51 +132,109 @@ function StartExchange() {
     }
   }
 
+  const handleISBNKeyDown = (e) => {
+    if (
+      giveISBN.length >= 13 &&
+      !(
+        e.key === 'Backspace' ||
+        e.key === 'Delete' ||
+        e.key === 'Tab' ||
+        e.key === 'ArrowLeft' ||
+        e.key === 'ArrowRight'
+      )
+    ) {
+      e.preventDefault()
+      return
+    }
+    onlyDigits(e)
+  }
+
+  const handleGenreChange = (checked, genre) => {
+    if (checked) {
+      setSelectedGenres((prev) => {
+        const updated = [...prev, genre]
+        if (updated.length === filteredGenres.length) setSelectAll(true)
+        return updated
+      })
+    } else {
+      setSelectedGenres((prev) => {
+        const updated = prev.filter((g) => g !== genre)
+        setSelectAll(false)
+        return updated
+      })
+    }
+  }
+
+  const toggleSelectAll = (checked) => {
+    setSelectAll(checked)
+    if (checked) {
+      setSelectedGenres(filteredGenres)
+    } else {
+      setSelectedGenres([])
+    }
+  }
+
+  const filteredGenres = allGenres.filter((g) =>
+    g.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
   const handleNext = () => {
+    const newErrors = []
     if (step === 1) {
-      if (!giveTitle.trim() || !giveAuthor.trim() || !giveYear.trim()) {
-        setMessage('Пожалуйста, заполните все обязательные поля для книги, которую отдаёте.')
-        setIsError(true)
+      if (!giveTitle.trim()) newErrors.push('Укажите название книги')
+      if (!giveAuthor.trim()) newErrors.push('Укажите автора книги')
+      if (!giveYear.trim()) {
+        newErrors.push('укажите год издания')
+      } else {
+        const yearNum = parseInt(giveYear, 10)
+        if (yearNum >= 2026) newErrors.push('неверный год издания')
+      }
+      if (giveISBN.length < 10) newErrors.push('не верный ISBN')
+      if (newErrors.length === 0) {
+        setErrors([])
+        setStep(2)
         return
       }
     }
     if (step === 2) {
-      if (!getCategory) {
-        setMessage('Пожалуйста, выберите хотя бы один жанр (категорию).')
-        setIsError(true)
+      if (selectedGenres.length === 0) {
+        newErrors.push('Пожалуйста, выберите хотя бы один жанр.')
+      }
+      if (newErrors.length === 0) {
+        setErrors([])
+        setStep(3)
         return
       }
     }
-    setMessage('')
-    setIsError(false)
-    setStep(step + 1)
+    setErrors(newErrors)
   }
 
   const handleBack = () => {
-    setMessage('')
-    setIsError(false)
+    setErrors([])
     setStep(step - 1)
   }
 
   const handleSubmit = () => {
+    const newErrors = []
     if (!city.trim() || !street.trim() || !house.trim()) {
-      setMessage('Пожалуйста, заполните все поля адреса доставки.')
-      setIsError(true)
+      newErrors.push('Пожалуйста, заполните все поля адреса доставки.')
+    }
+    if (newErrors.length === 0) {
+      setErrors([])
+      setGiveTitle('')
+      setGiveAuthor('')
+      setGiveYear('')
+      setGiveISBN('')
+      setSelectedGenres([])
+      setSearchQuery('')
+      setSelectAll(false)
+      setCity('')
+      setStreet('')
+      setHouse('')
+      setStep(1)
       return
     }
-    setMessage('Заявка на обмен успешно создана (демо)!')
-    setIsError(false)
-
-    setGiveTitle('')
-    setGiveAuthor('')
-    setGiveYear('')
-    setGiveISBN('')
-    setGetCategory('фантастика')
-    setGetTitle('')
-    setCity('')
-    setStreet('')
-    setHouse('')
-    setStep(1)
+    setErrors(newErrors)
   }
 
   return (
@@ -103,6 +247,7 @@ function StartExchange() {
           <div className="form-group">
             <label>Название книги:</label>
             <input
+              style={{ width: '90%' }}
               type="text"
               value={giveTitle}
               onChange={(e) => setGiveTitle(e.target.value)}
@@ -112,6 +257,7 @@ function StartExchange() {
           <div className="form-group">
             <label>Автор:</label>
             <input
+              style={{ width: '90%' }}
               type="text"
               value={giveAuthor}
               onChange={(e) => setGiveAuthor(e.target.value)}
@@ -124,6 +270,7 @@ function StartExchange() {
           <div className="form-group">
             <label>Год издания:</label>
             <input
+              style={{ width: '90%' }}
               type="text"
               value={giveYear}
               onChange={(e) => setGiveYear(e.target.value)}
@@ -136,17 +283,25 @@ function StartExchange() {
           <div className="form-group">
             <label>ISBN (при наличии):</label>
             <input
+              style={{ width: '90%' }}
               type="text"
               value={giveISBN}
               onChange={(e) => setGiveISBN(e.target.value)}
               placeholder="ISBN"
-              pattern="^[0-9]+$"
-              maxLength={13}
-              title="Только цифры (до 13 символов)"
-              onKeyDown={onlyDigits}
+              pattern="^[0-9]{10,13}$"
+              title="Только цифры (от 10 до 13 символов)"
+              onKeyDown={handleISBNKeyDown}
             />
           </div>
-          <div className="step-navigation">
+          <div
+            className="step-navigation"
+            style={{
+              display: 'flex',
+              gap: '20px',
+              marginTop: '20px',
+              justifyContent: 'flex-start',
+            }}
+          >
             <button onClick={handleNext}>Далее</button>
           </div>
         </div>
@@ -155,29 +310,65 @@ function StartExchange() {
       {step === 2 && (
         <div className="step-content">
           <h3>Шаг 2: Хочу получить</h3>
-          <div className="form-group">
-            <label>Категория/Жанр:</label>
-            <select
-              value={getCategory}
-              onChange={(e) => setGetCategory(e.target.value)}
-            >
-              <option value="фантастика">Фантастика</option>
-              <option value="детектив">Детектив</option>
-              <option value="классика">Классика</option>
-              <option value="комикс">Комикс</option>
-              <option value="история">История</option>
-            </select>
-          </div>
-          <div className="form-group">
-            <label>Название (если конкретное):</label>
+          <p>Выберите один или несколько жанров:</p>
+          <div style={{ marginBottom: '10px' }}>
             <input
               type="text"
-              value={getTitle}
-              onChange={(e) => setGetTitle(e.target.value)}
-              placeholder="Укажите книгу, если точно знаете"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value)
+                setSelectAll(false)
+                setSelectedGenres((prev) =>
+                  prev.filter((g) =>
+                    g.toLowerCase().includes(e.target.value.toLowerCase())
+                  )
+                )
+              }}
+              placeholder="Поиск по жанрам..."
+              style={{ width: '90%' }}
             />
           </div>
-          <div className="step-navigation">
+          <div style={{ marginBottom: '10px' }}>
+            <label>
+              <input
+                type="checkbox"
+                checked={selectAll}
+                onChange={(e) => toggleSelectAll(e.target.checked)}
+              />
+              {' '}Выбрать все
+            </label>
+          </div>
+          <div
+            style={{
+              maxHeight: '150px',
+              overflowY: 'auto',
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+              padding: '10px',
+            }}
+          >
+            {filteredGenres.map((genre) => (
+              <div key={genre} style={{ marginBottom: '5px' }}>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={selectedGenres.includes(genre)}
+                    onChange={(e) => handleGenreChange(e.target.checked, genre)}
+                  />
+                  {' '}{genre}
+                </label>
+              </div>
+            ))}
+          </div>
+          <div
+            className="step-navigation"
+            style={{
+              display: 'flex',
+              gap: '20px',
+              marginTop: '20px',
+              justifyContent: 'flex-start',
+            }}
+          >
             <button onClick={handleBack}>Назад</button>
             <button onClick={handleNext}>Далее</button>
           </div>
@@ -190,6 +381,7 @@ function StartExchange() {
           <div className="form-group">
             <label>Город:</label>
             <input
+              style={{ width: '90%' }}
               type="text"
               value={city}
               onChange={(e) => setCity(e.target.value)}
@@ -202,6 +394,7 @@ function StartExchange() {
           <div className="form-group">
             <label>Улица:</label>
             <input
+              style={{ width: '90%' }}
               type="text"
               value={street}
               onChange={(e) => setStreet(e.target.value)}
@@ -214,6 +407,7 @@ function StartExchange() {
           <div className="form-group">
             <label>Дом/Кв.:</label>
             <input
+              style={{ width: '90%' }}
               type="text"
               value={house}
               onChange={(e) => setHouse(e.target.value)}
@@ -223,17 +417,29 @@ function StartExchange() {
               onKeyDown={onlyDigits}
             />
           </div>
-          <div className="step-navigation">
+          <div
+            className="step-navigation"
+            style={{
+              display: 'flex',
+              gap: '20px',
+              marginTop: '20px',
+              justifyContent: 'flex-start',
+            }}
+          >
             <button onClick={handleBack}>Назад</button>
             <button onClick={handleSubmit}>Подтвердить обмен</button>
           </div>
         </div>
       )}
 
-      {message && (
-        <p className={isError ? 'error-message' : 'status-message'}>
-          {message}
-        </p>
+      {errors.length > 0 && (
+        <div style={{ marginTop: '20px' }}>
+          {errors.map((err, i) => (
+            <p key={i} style={{ color: 'red', margin: 0 }}>
+              {err}
+            </p>
+          ))}
+        </div>
       )}
     </div>
   )
