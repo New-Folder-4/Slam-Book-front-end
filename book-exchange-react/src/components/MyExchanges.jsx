@@ -5,6 +5,21 @@ function MyExchanges() {
   const [trackingStatus, setTrackingStatus] = useState('')
   const [receiptMessage, setReceiptMessage] = useState('')
 
+  const onlyDigits = (e) => {
+    if (
+      !(
+        e.key === 'Backspace' ||
+        e.key === 'Delete' ||
+        e.key === 'Tab' ||
+        e.key === 'ArrowLeft' ||
+        e.key === 'ArrowRight' ||
+        /^[0-9]$/.test(e.key)
+      )
+    ) {
+      e.preventDefault()
+    }
+  }
+
   const submitTracking = () => {
     if (trackingNumber.trim() !== '') {
       setTrackingStatus(`Трек-номер ${trackingNumber} отправлен. Ожидайте обновления.`)
@@ -29,6 +44,9 @@ function MyExchanges() {
             value={trackingNumber}
             onChange={(e) => setTrackingNumber(e.target.value)}
             placeholder="Введите трек-номер"
+            pattern="^[0-9]+$"
+            title="Только цифры"
+            onKeyDown={onlyDigits}
           />
         </div>
         <button onClick={submitTracking}>Отправить трек-номер</button>

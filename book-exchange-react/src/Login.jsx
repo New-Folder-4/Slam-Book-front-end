@@ -6,7 +6,23 @@ function Login() {
   const [password, setPassword] = useState('')
   const [message, setMessage] = useState('')
   const [isError, setIsError] = useState(false)
+
   const navigate = useNavigate()
+
+  const onlyEmailChars = (e) => {
+    if (
+      !(
+        e.key === 'Backspace' ||
+        e.key === 'Delete' ||
+        e.key === 'Tab' ||
+        e.key === 'ArrowLeft' ||
+        e.key === 'ArrowRight' ||
+        /[A-Za-z0-9@._-]/.test(e.key)
+      )
+    ) {
+      e.preventDefault()
+    }
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -35,14 +51,20 @@ function Login() {
   return (
     <div className="profile-page page-fade-in">
       <h2>Авторизация</h2>
-      <form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: '640px' }}>
+      <form
+        onSubmit={handleSubmit}
+        style={{ width: '100%', maxWidth: '640px' }}
+      >
         <div className="form-group">
           <label>Email:</label>
           <input
-            type="email"
+            type="text"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="example@mail.ru"
+            pattern="^[A-Za-z0-9@._-]+$"
+            title="Только латиница, цифры, символы @._-"
+            onKeyDown={onlyEmailChars}
           />
         </div>
         <div className="form-group">
