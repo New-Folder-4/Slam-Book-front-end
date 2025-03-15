@@ -19,7 +19,8 @@ function Registration() {
   const navigate = useNavigate()
 
   const validateRegistrationFields = () => {
-    if (!lastName.trim() || !firstName.trim() || !email.trim() || !username.trim() || !password.trim()) {
+    if (!lastName.trim() || !firstName.trim() || !email.trim() ||
+        !username.trim() || !password.trim()) {
       return false
     }
     if (!email.includes('@')) return false
@@ -82,12 +83,12 @@ function Registration() {
   }
 
   return (
-    <div className="registration-page page-fade-in">
+    <div className="profile-page page-fade-in">
       <h2>Регистрация</h2>
-      <form onSubmit={handleSubmit} style={{ textAlign: 'left' }}>
+      <form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: '640px' }}>
         <div className="form-group">
           <label>Фамилия*:</label>
-          <input 
+          <input
             type="text"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
@@ -97,7 +98,7 @@ function Registration() {
         </div>
         <div className="form-group">
           <label>Имя*:</label>
-          <input 
+          <input
             type="text"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
@@ -107,7 +108,7 @@ function Registration() {
         </div>
         <div className="form-group">
           <label>Отчество:</label>
-          <input 
+          <input
             type="text"
             value={secondName}
             onChange={(e) => setSecondName(e.target.value)}
@@ -117,7 +118,7 @@ function Registration() {
         </div>
         <div className="form-group">
           <label>Email*:</label>
-          <input 
+          <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -127,7 +128,7 @@ function Registration() {
         </div>
         <div className="form-group">
           <label>Ник (уникальный)*:</label>
-          <input 
+          <input
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
@@ -137,7 +138,7 @@ function Registration() {
         </div>
         <div className="form-group">
           <label>Пароль*:</label>
-          <input 
+          <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -148,7 +149,7 @@ function Registration() {
         <h3>Адрес доставки</h3>
         <div className="form-group">
           <label>Индекс*:</label>
-          <input 
+          <input
             type="text"
             value={addrIndex}
             onChange={(e) => setAddrIndex(e.target.value)}
@@ -158,7 +159,7 @@ function Registration() {
         </div>
         <div className="form-group">
           <label>Город*:</label>
-          <input 
+          <input
             type="text"
             value={addrCity}
             onChange={(e) => setAddrCity(e.target.value)}
@@ -168,7 +169,7 @@ function Registration() {
         </div>
         <div className="form-group">
           <label>Улица*:</label>
-          <input 
+          <input
             type="text"
             value={addrStreet}
             onChange={(e) => setAddrStreet(e.target.value)}
@@ -178,7 +179,7 @@ function Registration() {
         </div>
         <div className="form-group">
           <label>Номер дома*:</label>
-          <input 
+          <input
             type="text"
             value={addrHouse}
             onChange={(e) => setAddrHouse(e.target.value)}
@@ -188,7 +189,7 @@ function Registration() {
         </div>
         <div className="form-group">
           <label>Номер строения:</label>
-          <input 
+          <input
             type="text"
             value={addrStructure}
             onChange={(e) => setAddrStructure(e.target.value)}
@@ -198,7 +199,7 @@ function Registration() {
         </div>
         <div className="form-group">
           <label>Номер квартиры:</label>
-          <input 
+          <input
             type="text"
             value={addrApart}
             onChange={(e) => setAddrApart(e.target.value)}
@@ -206,7 +207,7 @@ function Registration() {
             maxLength="3"
           />
         </div>
-        <div style={{ textAlign: 'center' }}>
+        <div className="save-btn-container">
           <button type="submit">Зарегистрироваться</button>
         </div>
         {message && (
@@ -214,7 +215,7 @@ function Registration() {
             {message}
           </p>
         )}
-        <p style={{ textAlign: 'center' }}>
+        <p style={{ textAlign: 'center', marginTop: '15px' }}>
           Уже зарегистрированы? <a href="/login">Войти</a>
         </p>
       </form>

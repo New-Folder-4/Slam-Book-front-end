@@ -16,14 +16,15 @@ function MyExchanges() {
   }
 
   return (
-    <div className="my-exchanges-page page-fade-in">
+    <div className="profile-page page-fade-in">
       <h2>Мои обмены</h2>
       <p>Здесь отображаются активные и завершённые обмены (демо).</p>
+
       <div className="sub-block">
         <h3>Отправка книги</h3>
         <div className="form-group">
           <label>Трек-номер:</label>
-          <input 
+          <input
             type="text"
             value={trackingNumber}
             onChange={(e) => setTrackingNumber(e.target.value)}
@@ -33,6 +34,7 @@ function MyExchanges() {
         <button onClick={submitTracking}>Отправить трек-номер</button>
         {trackingStatus && <p>{trackingStatus}</p>}
       </div>
+
       <div className="sub-block">
         <h3>Подтверждение получения книги</h3>
         <button onClick={confirmReceipt}>Подтвердить получение</button>

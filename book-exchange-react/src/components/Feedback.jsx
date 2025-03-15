@@ -12,11 +12,11 @@ function Feedback() {
   }
 
   return (
-    <div className="feedback-page page-fade-in">
+    <div className="profile-page page-fade-in">
       <h2>Обратная связь</h2>
       <div className="form-group">
         <label>Новое сообщение для администратора:</label>
-        <textarea 
+        <textarea
           rows="3"
           value={msg}
           onChange={(e) => setMsg(e.target.value)}

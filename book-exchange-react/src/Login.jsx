@@ -33,12 +33,12 @@ function Login() {
   }
 
   return (
-    <div className="login-page page-fade-in">
+    <div className="profile-page page-fade-in">
       <h2>Авторизация</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: '640px' }}>
         <div className="form-group">
           <label>Email:</label>
-          <input 
+          <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -47,25 +47,27 @@ function Login() {
         </div>
         <div className="form-group">
           <label>Пароль:</label>
-          <input 
+          <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Ваш пароль"
           />
         </div>
-        <button type="submit">Войти</button>
+        <div className="save-btn-container">
+          <button type="submit">Войти</button>
+        </div>
         {message && (
           <p className={isError ? 'error-message' : 'status-message'}>
             {message}
           </p>
         )}
-        <p>
+        <p style={{ textAlign: 'center', marginTop: '15px' }}>
           <a href="#!" onClick={() => alert('Функция восстановления пароля (демо)')}>
             Забыли пароль?
           </a>
         </p>
-        <p>
+        <p style={{ textAlign: 'center', marginTop: '5px' }}>
           Нет аккаунта? <a href="/register">Зарегистрироваться</a>
         </p>
       </form>

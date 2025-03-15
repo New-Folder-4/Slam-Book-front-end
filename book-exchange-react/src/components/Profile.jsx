@@ -6,6 +6,10 @@ function Profile({ onAvatarSelect }) {
   const [address, setAddress] = useState('')
   const [message, setMessage] = useState('')
   const [selectedAvatar, setSelectedAvatar] = useState('')
+  const [uploadedAvatars, setUploadedAvatars] = useState([])
+  const fileInputRef = useRef(null)
+
+  // Список аватарок (1..15), без повторений
   const avatarList = [
     '/avatars/avatar1.png',
     '/avatars/avatar2.png',
@@ -16,20 +20,13 @@ function Profile({ onAvatarSelect }) {
     '/avatars/avatar7.png',
     '/avatars/avatar8.png',
     '/avatars/avatar9.png',
-    '/avatars/avatar10.png'
+    '/avatars/avatar10.png',
+    '/avatars/avatar11.png',
+    '/avatars/avatar12.png',
+    '/avatars/avatar13.png',
+    '/avatars/avatar14.png',
+    '/avatars/avatar15.png'
   ]
-  const [uploadedAvatars, setUploadedAvatars] = useState([])
-  const fileInputRef = useRef(null)
-
-  const saveProfile = () => {
-    setMessage('Данные профиля сохранены (демо).')
-  }
-
-  const handleAddCustomAvatarClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click()
-    }
-  }
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -45,6 +42,12 @@ function Profile({ onAvatarSelect }) {
     }
   }
 
+  const handleAddCustomAvatarClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click()
+    }
+  }
+
   const handleAvatarClick = (src) => {
     setSelectedAvatar(src)
     if (onAvatarSelect) {
@@ -52,98 +55,112 @@ function Profile({ onAvatarSelect }) {
     }
   }
 
+  const saveProfile = () => {
+    setMessage('Данные профиля сохранены (демо).')
+  }
+
   const placeholdersCount = 3 - uploadedAvatars.length
 
   return (
     <div className="profile-page page-fade-in">
       <h2>Личный кабинет</h2>
-      <div className="form-group">
-        <label>Имя:</label>
-        <input 
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Ваше имя"
-        />
+
+      <div className="form-fields">
+        <div className="form-group">
+          <label>Имя:</label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Ваше имя"
+          />
+        </div>
+        <div className="form-group">
+          <label>Email:</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Ваш email"
+          />
+        </div>
+        <div className="form-group">
+          <label>Адрес доставки:</label>
+          <input
+            type="text"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            placeholder="Ваш адрес"
+          />
+        </div>
       </div>
-      <div className="form-group">
-        <label>Email:</label>
-        <input 
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Ваш email"
-        />
-      </div>
-      <div className="form-group">
-        <label>Адрес доставки:</label>
-        <input 
-          type="text"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          placeholder="Ваш адрес"
-        />
-      </div>
-      <h3>Выбрать аватар</h3>
-      <div className="avatar-container">
+
+      <div className="avatar-grid">
         {avatarList.map((src, index) => (
           <div
             key={index}
-            className="avatar-item"
+            className={
+              selectedAvatar === src
+                ? 'avatar-item selected-avatar'
+                : 'avatar-item'
+            }
             onClick={() => handleAvatarClick(src)}
           >
-            <img 
+            <img
               src={src}
               alt={`avatar-${index + 1}`}
-              className={selectedAvatar === src ? 'avatar-image selected' : 'avatar-image'}
+              className="avatar-image"
             />
           </div>
         ))}
       </div>
-      <button onClick={handleAddCustomAvatarClick}>
-        Добавить свою аватарку
-      </button>
-      <input
-        type="file"
-        ref={fileInputRef}
-        style={{ display: 'none' }}
-        accept="image/*"
-        onChange={handleFileChange}
-      />
-      <div className="avatar-container" style={{ marginTop: '15px' }}>
+
+      <div className="upload-btn-container">
+        <button onClick={handleAddCustomAvatarClick}>
+          Добавить свою аватарку
+        </button>
+        <input
+          type="file"
+          ref={fileInputRef}
+          style={{ display: 'none' }}
+          accept="image/*"
+          onChange={handleFileChange}
+        />
+      </div>
+
+      <div className="avatar-grid-small">
         {uploadedAvatars.map((src, idx) => (
           <div
             key={`uploaded-${idx}`}
-            className="avatar-item"
+            className={
+              selectedAvatar === src
+                ? 'avatar-item selected-avatar'
+                : 'avatar-item'
+            }
             onClick={() => handleAvatarClick(src)}
           >
             <img
               src={src}
               alt={`custom-avatar-${idx + 1}`}
-              className={selectedAvatar === src ? 'avatar-image selected' : 'avatar-image'}
+              className="avatar-image"
             />
           </div>
         ))}
         {Array.from({ length: placeholdersCount }, (_, i) => (
-          <div key={`placeholder-${i}`} className="avatar-item">
-            <div
-              style={{
-                background: '#ccc',
-                width: '100%',
-                height: '100%',
-                borderRadius: '50%'
-              }}
-            />
-          </div>
+          <div key={`placeholder-${i}`} className="avatar-item placeholder" />
         ))}
       </div>
-      <button onClick={saveProfile} style={{ marginTop: '15px' }}>
-        Сохранить изменения
-      </button>
-      {message && <p>{message}</p>}
-      <h3>История обменов</h3>
-      <p>Пока нет завершённых обменов.</p>
-      <h3>Ваш рейтинг: 4.5</h3>
+
+      <div className="save-btn-container">
+        <button onClick={saveProfile}>Сохранить изменения</button>
+      </div>
+      {message && <p className="save-message">{message}</p>}
+
+      <div className="profile-footer">
+        <h3>История обменов</h3>
+        <p>Пока нет завершённых обменов.</p>
+        <h3>Ваш рейтинг: 4.5</h3>
+      </div>
     </div>
   )
 }
