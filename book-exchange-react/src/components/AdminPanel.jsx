@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 function AdminPanel() {
   const [users, setUsers] = useState([
-    { id: 1, name: 'UserOne', blocked: false },
-    { id: 2, name: 'UserTwo', blocked: true },
-    { id: 3, name: 'UserThree', blocked: false }
+    { id: 1, name: 'UserOne', blocked: false, chatMessages: 0 },
+    { id: 2, name: 'UserTwo', blocked: true, chatMessages: 5 },
+    { id: 3, name: 'UserThree', blocked: false, chatMessages: 0 },
   ])
   const [searchTerm, setSearchTerm] = useState('')
-  const [colWidths, setColWidths] = useState([40, 350, 120, 160])
+  const [colWidths, setColWidths] = useState([40, 350, 200, 120, 160])
   const [draggingCol, setDraggingCol] = useState(-1)
   const [startX, setStartX] = useState(0)
   const [startWidth, setStartWidth] = useState(0)
+
+  const navigate = useNavigate()
 
   const handleBlockToggle = (userId) => {
     setUsers((prev) =>
@@ -56,8 +59,12 @@ function AdminPanel() {
     }
   }, [onMouseMove, onMouseUp])
 
+  const goToChat = (userId) => {
+    navigate(`/support-chat/${userId}`)
+  }
+
   return (
-    <div className="admin-panel page-fade-in">
+    <div className="admin-panel">
       <h2>Админ-панель</h2>
       <p>Чат поддержки (демо). Здесь можно блокировать и разблокировать пользователей.</p>
       <div className="search-block">
@@ -74,31 +81,23 @@ function AdminPanel() {
           <tr>
             <th style={{ width: colWidths[0] + 'px' }}>
               ID
-              <span
-                className="resizer"
-                onMouseDown={(e) => onMouseDown(e, 0)}
-              />
+              <span className="resizer" onMouseDown={(e) => onMouseDown(e, 0)} />
             </th>
             <th style={{ width: colWidths[1] + 'px' }}>
               Имя пользователя
-              <span
-                className="resizer"
-                onMouseDown={(e) => onMouseDown(e, 1)}
-              />
+              <span className="resizer" onMouseDown={(e) => onMouseDown(e, 1)} />
             </th>
             <th style={{ width: colWidths[2] + 'px' }}>
-              Статус
-              <span
-                className="resizer"
-                onMouseDown={(e) => onMouseDown(e, 2)}
-              />
+              Сообщения в чате
+              <span className="resizer" onMouseDown={(e) => onMouseDown(e, 2)} />
             </th>
             <th style={{ width: colWidths[3] + 'px' }}>
+              Статус
+              <span className="resizer" onMouseDown={(e) => onMouseDown(e, 3)} />
+            </th>
+            <th style={{ width: colWidths[4] + 'px' }}>
               Действие
-              <span
-                className="resizer"
-                onMouseDown={(e) => onMouseDown(e, 3)}
-              />
+              <span className="resizer" onMouseDown={(e) => onMouseDown(e, 4)} />
             </th>
           </tr>
         </thead>
@@ -107,6 +106,15 @@ function AdminPanel() {
             <tr key={u.id}>
               <td>{u.id}</td>
               <td>{u.name}</td>
+              <td style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <div>{u.chatMessages}</div>
+                <button
+                  style={{ marginLeft: '10px' }}
+                  onClick={() => goToChat(u.id)}
+                >
+                  Открыть чат
+                </button>
+              </td>
               <td>{u.blocked ? 'Заблокирован' : 'Активен'}</td>
               <td>
                 <button onClick={() => handleBlockToggle(u.id)}>
