@@ -1,23 +1,21 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-function Registration() {
+function Registration({ setIsLoggedIn, setIsAdmin }) {
   const [lastName, setLastName] = useState('')
   const [firstName, setFirstName] = useState('')
-  const [secondName, setSecondName] = useState('')
+  const [secondName, setSecondName] = useState('') // Отчество (необязательно)
   const [email, setEmail] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [addrIndex, setAddrIndex] = useState('')
-  const [addrCity, setAddrCity] = useState('')
-  const [addrStreet, setAddrStreet] = useState('')
-  const [addrHouse, setAddrHouse] = useState('')
-  const [addrStructure, setAddrStructure] = useState('')
-  const [addrApart, setAddrApart] = useState('')
   const [message, setMessage] = useState('')
   const [isError, setIsError] = useState(false)
 
   const navigate = useNavigate()
+
+  useEffect(() => {
+    document.title = 'Регистрация'
+  }, [])
 
   const onlyLetters = (e) => {
     if (
@@ -49,20 +47,7 @@ function Registration() {
     }
   }
 
-  const onlyDigits = (e) => {
-    if (
-      !(
-        e.key === 'Backspace' ||
-        e.key === 'Delete' ||
-        e.key === 'Tab' ||
-        e.key === 'ArrowLeft' ||
-        e.key === 'ArrowRight' ||
-        /^[0-9]$/.test(e.key)
-      )
-    ) {
-      e.preventDefault()
-    }
-  }
+  const passwordPattern = '^[^а-яА-ЯёЁ]*$'
 
   const validateRegistrationFields = () => {
     if (
@@ -81,63 +66,47 @@ function Registration() {
 
   const handleSubmit = (e) => {
     e.preventDefault()
+
     if (!validateRegistrationFields()) {
       setIsError(true)
       setMessage('Пожалуйста, заполните все обязательные поля корректно.')
       return
     }
 
-    fetch('http://localhost:3000/api/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        lastName,
-        firstName,
-        secondName,
-        email,
-        username,
-        password,
-        addrIndex,
-        addrCity,
-        addrStreet,
-        addrHouse,
-        addrStructure,
-        addrApart
-      })
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          setIsError(false)
-          setMessage('Регистрация прошла успешно! Проверьте e-mail для подтверждения.')
-          setLastName('')
-          setFirstName('')
-          setSecondName('')
-          setEmail('')
-          setUsername('')
-          setPassword('')
-          setAddrIndex('')
-          setAddrCity('')
-          setAddrStreet('')
-          setAddrHouse('')
-          setAddrStructure('')
-          setAddrApart('')
-          setTimeout(() => navigate('/login'), 2000)
-        } else {
-          setIsError(true)
-          setMessage(data.error || 'Ошибка при регистрации.')
-        }
-      })
-      .catch(() => {
-        setIsError(true)
-        setMessage('Ошибка при отправке запроса на сервер.')
-      })
+    setIsError(false)
+    setMessage('Регистрация прошла успешно!')
+
+    // Сохраняем данные
+    localStorage.setItem('lastName', lastName)
+    localStorage.setItem('firstName', firstName)
+    localStorage.setItem('secondName', secondName)
+    localStorage.setItem('username', username)
+    localStorage.setItem('email', email)
+    localStorage.setItem('isAdmin', 'false')
+
+    setIsLoggedIn(true)
+    setIsAdmin(false)
+
+    // Сброс полей
+    setLastName('')
+    setFirstName('')
+    setSecondName('')
+    setEmail('')
+    setUsername('')
+    setPassword('')
+
+    setTimeout(() => {
+      navigate('/profile')
+    }, 1000)
   }
 
   return (
     <div className="profile-page page-fade-in">
       <h2>Регистрация</h2>
-      <form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: '640px' }}>
+      <form
+        onSubmit={handleSubmit}
+        style={{ width: '100%', maxWidth: '640px', margin: '0 auto' }}
+      >
         <div className="form-group">
           <label>Фамилия*:</label>
           <input
@@ -170,7 +139,7 @@ function Registration() {
             type="text"
             value={secondName}
             onChange={(e) => setSecondName(e.target.value)}
-            placeholder="Иванович"
+            placeholder="Отчество (необязательно)"
             maxLength={25}
             pattern="^[A-Za-zА-Яа-яЁё\s-]*$"
             title="Только буквы, пробелы и дефисы"
@@ -209,87 +178,10 @@ function Registration() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Не менее 8 символов"
+            pattern={passwordPattern}
+            title="Пароль не должен содержать кириллицу"
           />
           <small>Пароль должен содержать хотя бы одну заглавную, одну прописную букву и цифру</small>
-        </div>
-        <h3>Адрес доставки</h3>
-        <div className="form-group">
-          <label>Индекс*:</label>
-          <input
-            type="text"
-            value={addrIndex}
-            onChange={(e) => setAddrIndex(e.target.value)}
-            placeholder="6 цифр"
-            maxLength={6}
-            pattern="^[0-9]+$"
-            title="Только цифры (6 символов)"
-            onKeyDown={onlyDigits}
-          />
-        </div>
-        <div className="form-group">
-          <label>Город*:</label>
-          <input
-            type="text"
-            value={addrCity}
-            onChange={(e) => setAddrCity(e.target.value)}
-            placeholder="Город"
-            maxLength={15}
-            pattern="^[A-Za-zА-Яа-яЁё\s-]+$"
-            title="Только буквы, пробелы и дефисы"
-            onKeyDown={onlyLetters}
-          />
-        </div>
-        <div className="form-group">
-          <label>Улица*:</label>
-          <input
-            type="text"
-            value={addrStreet}
-            onChange={(e) => setAddrStreet(e.target.value)}
-            placeholder="Улица"
-            maxLength={25}
-            pattern="^[A-Za-zА-Яа-яЁё\s-]+$"
-            title="Только буквы, пробелы и дефисы"
-            onKeyDown={onlyLetters}
-          />
-        </div>
-        <div className="form-group">
-          <label>Номер дома*:</label>
-          <input
-            type="text"
-            value={addrHouse}
-            onChange={(e) => setAddrHouse(e.target.value)}
-            placeholder="Номер дома"
-            maxLength={5}
-            pattern="^[0-9]+$"
-            title="Только цифры"
-            onKeyDown={onlyDigits}
-          />
-        </div>
-        <div className="form-group">
-          <label>Номер строения:</label>
-          <input
-            type="text"
-            value={addrStructure}
-            onChange={(e) => setAddrStructure(e.target.value)}
-            placeholder="Номер строения"
-            maxLength={2}
-            pattern="^[0-9]*$"
-            title="Только цифры"
-            onKeyDown={onlyDigits}
-          />
-        </div>
-        <div className="form-group">
-          <label>Номер квартиры:</label>
-          <input
-            type="text"
-            value={addrApart}
-            onChange={(e) => setAddrApart(e.target.value)}
-            placeholder="Номер квартиры"
-            maxLength={3}
-            pattern="^[0-9]*$"
-            title="Только цифры"
-            onKeyDown={onlyDigits}
-          />
         </div>
         <div className="save-btn-container">
           <button type="submit">Зарегистрироваться</button>

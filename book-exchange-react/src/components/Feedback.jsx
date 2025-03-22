@@ -1,11 +1,18 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 function Feedback() {
   const [msg, setMsg] = useState('')
   const [status, setStatus] = useState('')
 
+  // Устанавливаем заголовок вкладки
+  useEffect(() => {
+    document.title = 'Обратная связь'
+  }, [])
+
   const sendMessage = () => {
     if (msg.trim() !== '') {
+      // В openapi.yaml нет эндпоинта для отправки сообщения от пользователя
+      // Здесь демо-реализация без реального запроса
       setStatus('Сообщение отправлено администратору (демо).')
       setMsg('')
     }
