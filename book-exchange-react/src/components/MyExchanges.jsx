@@ -1,9 +1,14 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 function MyExchanges() {
   const [trackingNumber, setTrackingNumber] = useState('')
   const [trackingStatus, setTrackingStatus] = useState('')
   const [receiptMessage, setReceiptMessage] = useState('')
+
+  // Устанавливаем заголовок вкладки
+  useEffect(() => {
+    document.title = 'Мои обмены'
+  }, [])
 
   const onlyDigits = (e) => {
     if (
@@ -20,6 +25,8 @@ function MyExchanges() {
     }
   }
 
+  // В openapi.yaml есть /exchange/track и /exchange/receive,
+  // но здесь пока демо-реализация без реальных запросов.
   const submitTracking = () => {
     if (trackingNumber.trim() !== '') {
       setTrackingStatus(`Трек-номер ${trackingNumber} отправлен. Ожидайте обновления.`)
@@ -36,7 +43,7 @@ function MyExchanges() {
       <p>Здесь отображаются активные и завершённые обмены (демо).</p>
 
       <div className="sub-block">
-        <h3>Отправка книги</h3> <br></br>
+        <h3>Отправка книги</h3>
         <div className="form-group">
           <label>Трек-номер:</label>
           <input
@@ -54,7 +61,7 @@ function MyExchanges() {
       </div>
 
       <div className="sub-block">
-        <h3>Подтверждение получения книги</h3><br></br>
+        <h3>Подтверждение получения книги</h3>
         <button onClick={confirmReceipt}>Подтвердить получение</button>
         {receiptMessage && <p>{receiptMessage}</p>}
       </div>

@@ -386,6 +386,7 @@ function StartExchange() {
           <div className="form-group">
             <label>ISBN (при наличии):</label>
             <input
+              
               type="text"
               value={giveISBN}
               onChange={(e) => setGiveISBN(e.target.value)}
