@@ -1,15 +1,19 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-function Login() {
-  const [email, setEmail] = useState('')
+function Login({ setIsLoggedIn, setIsAdmin }) {
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [message, setMessage] = useState('')
   const [isError, setIsError] = useState(false)
 
   const navigate = useNavigate()
 
-  const onlyEmailChars = (e) => {
+  useEffect(() => {
+    document.title = 'Авторизация'
+  }, [])
+
+  const onlyUsernameChars = (e) => {
     if (
       !(
         e.key === 'Backspace' ||
@@ -17,35 +21,47 @@ function Login() {
         e.key === 'Tab' ||
         e.key === 'ArrowLeft' ||
         e.key === 'ArrowRight' ||
-        /[A-Za-z0-9@._-]/.test(e.key)
+        /[A-Za-z0-9_]/.test(e.key)
       )
     ) {
       e.preventDefault()
     }
   }
 
+  const passwordPattern = '^[^а-яА-ЯёЁ]*$'
+
   const handleSubmit = (e) => {
     e.preventDefault()
-    fetch('http://localhost:3000/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          setIsError(false)
-          setMessage('Вы успешно авторизованы (демо).')
-          setTimeout(() => navigate('/'), 1500)
-        } else {
-          setIsError(true)
-          setMessage(data.error || 'Неверный email или пароль')
-        }
-      })
-      .catch(() => {
+
+    const regex = new RegExp(passwordPattern)
+    if (!regex.test(password)) {
+      setIsError(true)
+      setMessage('Пароль содержит недопустимые символы (кириллица)')
+      return
+    }
+
+    if (username.trim() === 'admin' && password === '12345678') {
+      setIsError(false)
+      setMessage('Вы успешно авторизованы как админ.')
+      localStorage.setItem('username', 'admin')
+      localStorage.setItem('isAdmin', 'true')
+      setIsLoggedIn(true)
+      setIsAdmin(true)
+      setTimeout(() => navigate('/profile'), 1000)
+    } else {
+      if (password.length >= 8) {
+        setIsError(false)
+        setMessage('Вы успешно авторизованы.')
+        localStorage.setItem('username', username)
+        localStorage.setItem('isAdmin', 'false')
+        setIsLoggedIn(true)
+        setIsAdmin(false)
+        setTimeout(() => navigate('/profile'), 1000)
+      } else {
         setIsError(true)
-        setMessage('Ошибка при отправке запроса на сервер.')
-      })
+        setMessage('Неверный ник или пароль')
+      }
+    }
   }
 
   return (
@@ -53,18 +69,18 @@ function Login() {
       <h2>Авторизация</h2>
       <form
         onSubmit={handleSubmit}
-        style={{ width: '100%', maxWidth: '640px' }}
+        style={{ width: '100%', maxWidth: '640px', margin: '0 auto' }}
       >
         <div className="form-group">
-          <label>Email:</label>
+          <label>Ник:</label>
           <input
             type="text"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="example@mail.ru"
-            pattern="^[A-Za-z0-9@._-]+$"
-            title="Только латиница, цифры, символы @._-"
-            onKeyDown={onlyEmailChars}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Ваш ник"
+            pattern="^[A-Za-z0-9_]+$"
+            title="Только латинские буквы, цифры и подчёркивания"
+            onKeyDown={onlyUsernameChars}
           />
         </div>
         <div className="form-group">
@@ -74,6 +90,8 @@ function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Ваш пароль"
+            pattern={passwordPattern}
+            title="Пароль не должен содержать кириллицу"
           />
         </div>
         <div className="save-btn-container">
