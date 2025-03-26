@@ -4,15 +4,11 @@ function MyExchanges() {
   const [trackingNumber, setTrackingNumber] = useState('')
   const [trackingStatus, setTrackingStatus] = useState('')
   const [receiptMessage, setReceiptMessage] = useState('')
-
-  // Новый стейт для хранения созданных заявок (из localStorage)
   const [exchanges, setExchanges] = useState([])
-
-  // Новый стейт для поиска по трек-номеру
   const [searchQuery, setSearchQuery] = useState('')
 
-  // При монтировании компонента читаем из localStorage
   useEffect(() => {
+    document.title = 'Мои обмены'
     const savedExchanges = JSON.parse(localStorage.getItem('exchanges') || '[]')
     setExchanges(savedExchanges)
   }, [])
@@ -47,7 +43,6 @@ function MyExchanges() {
       <h2>Мои обмены</h2>
       <p>Здесь отображаются активные и завершённые обмены (демо).</p>
 
-      {/* Новый блок: Мои созданные заявки (из localStorage) */}
       <div className="sub-block">
         <h3>Мои созданные заявки</h3>
         <div style={{ marginBottom: '10px' }}>
@@ -100,7 +95,7 @@ function MyExchanges() {
       </div>
 
       <div className="sub-block">
-        <h3>Отправка книги</h3> <br />
+        <h3>Отправка книги</h3><br />
         <div className="form-group">
           <label>Трек-номер:</label>
           <input
