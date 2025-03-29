@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 
 function Registration({ setIsLoggedIn, setIsAdmin }) {
   const [lastName, setLastName] = useState('')
   const [firstName, setFirstName] = useState('')
-  const [secondName, setSecondName] = useState('') // Отчество (необязательно)
+  const [secondName, setSecondName] = useState('')
   const [email, setEmail] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -73,31 +74,44 @@ function Registration({ setIsLoggedIn, setIsAdmin }) {
       return
     }
 
-    setIsError(false)
-    setMessage('Регистрация прошла успешно!')
+    // Подготовка payload для регистрации (согласно OpenAPI схема RegisterRequest)
+    const payload = {
+      firstName,
+      lastName,
+      email,
+      password
+    }
 
-    // Сохраняем данные
-    localStorage.setItem('lastName', lastName)
-    localStorage.setItem('firstName', firstName)
-    localStorage.setItem('secondName', secondName)
-    localStorage.setItem('username', username)
-    localStorage.setItem('email', email)
-    localStorage.setItem('isAdmin', 'false')
-
-    setIsLoggedIn(true)
-    setIsAdmin(false)
-
-    // Сброс полей
-    setLastName('')
-    setFirstName('')
-    setSecondName('')
-    setEmail('')
-    setUsername('')
-    setPassword('')
-
-    setTimeout(() => {
-      navigate('/profile')
-    }, 1000)
+    axios
+      .post('/auth/register', payload)
+      .then((response) => {
+        setIsError(false)
+        setMessage('Регистрация прошла успешно!')
+        // Сохраняем данные в localStorage (для сохранения функционала)
+        localStorage.setItem('lastName', lastName)
+        localStorage.setItem('firstName', firstName)
+        localStorage.setItem('secondName', secondName)
+        localStorage.setItem('username', username)
+        localStorage.setItem('email', email)
+        localStorage.setItem('isAdmin', 'false')
+        setIsLoggedIn(true)
+        setIsAdmin(false)
+        // Сброс полей
+        setLastName('')
+        setFirstName('')
+        setSecondName('')
+        setEmail('')
+        setUsername('')
+        setPassword('')
+        setTimeout(() => {
+          navigate('/profile')
+        }, 1000)
+      })
+      .catch((error) => {
+        setIsError(true)
+        setMessage('Ошибка регистрации. Попробуйте ещё раз.')
+        console.error(error)
+      })
   }
 
   return (

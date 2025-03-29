@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 
 function Login({ setIsLoggedIn, setIsAdmin }) {
   const [username, setUsername] = useState('')
@@ -33,35 +34,39 @@ function Login({ setIsLoggedIn, setIsAdmin }) {
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    const regex = new RegExp(passwordPattern)
-    if (!regex.test(password)) {
-      setIsError(true)
-      setMessage('Пароль содержит недопустимые символы (кириллица)')
-      return
+    // Подготовка payload: используем значение username как email для API
+    const payload = {
+      email: username,
+      password
     }
 
-    if (username.trim() === 'admin' && password === '12345678') {
-      setIsError(false)
-      setMessage('Вы успешно авторизованы как админ.')
-      localStorage.setItem('username', 'admin')
-      localStorage.setItem('isAdmin', 'true')
-      setIsLoggedIn(true)
-      setIsAdmin(true)
-      setTimeout(() => navigate('/profile'), 1000)
-    } else {
-      if (password.length >= 8) {
+    axios
+      .post('/auth/login', payload)
+      .then((response) => {
         setIsError(false)
         setMessage('Вы успешно авторизованы.')
+        // Допустим, в ответе приходит токен, который можно сохранить (например, response.data.token)
+        if (response.data.token) {
+          localStorage.setItem('token', response.data.token)
+        }
+        // Сохраняем данные в localStorage для сохранения функционала
         localStorage.setItem('username', username)
-        localStorage.setItem('isAdmin', 'false')
+        // Если админ, можно установить специальное значение (API может вернуть информацию о роли)
+        if (username === 'admin') {
+          localStorage.setItem('isAdmin', 'true')
+          setIsAdmin(true)
+        } else {
+          localStorage.setItem('isAdmin', 'false')
+          setIsAdmin(false)
+        }
         setIsLoggedIn(true)
-        setIsAdmin(false)
         setTimeout(() => navigate('/profile'), 1000)
-      } else {
+      })
+      .catch((error) => {
         setIsError(true)
         setMessage('Неверный ник или пароль')
-      }
-    }
+        console.error(error)
+      })
   }
 
   return (

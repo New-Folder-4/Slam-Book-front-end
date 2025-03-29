@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 
 function Profile({ onAvatarSelect, setIsLoggedIn, setIsAdmin, setHeaderAvatar }) {
   const [lastName, setLastName] = useState('')
@@ -23,17 +24,26 @@ function Profile({ onAvatarSelect, setIsLoggedIn, setIsAdmin, setHeaderAvatar })
 
   useEffect(() => {
     document.title = 'Личный кабинет'
-    const storedLastName = localStorage.getItem('lastName') || ''
-    const storedFirstName = localStorage.getItem('firstName') || ''
-    const storedSecondName = localStorage.getItem('secondName') || ''
-    const storedUsername = localStorage.getItem('username') || ''
-    const storedEmail = localStorage.getItem('email') || ''
-
-    setLastName(storedLastName)
-    setFirstName(storedFirstName)
-    setSecondName(storedSecondName)
-    setUsername(storedUsername)
-    setEmail(storedEmail)
+    // Получение профиля с Back-end
+    axios
+      .get('/user/profile')
+      .then((response) => {
+        const profile = response.data
+        setLastName(profile.lastName || '')
+        setFirstName(profile.firstName || '')
+        setSecondName(profile.secondName || '')
+        setUsername(profile.userName || '')
+        setEmail(profile.email || '')
+        // Сохраняем данные в localStorage для сохранения функционала
+        localStorage.setItem('lastName', profile.lastName || '')
+        localStorage.setItem('firstName', profile.firstName || '')
+        localStorage.setItem('secondName', profile.secondName || '')
+        localStorage.setItem('username', profile.userName || '')
+        localStorage.setItem('email', profile.email || '')
+      })
+      .catch((error) => {
+        console.error('Ошибка получения профиля:', error)
+      })
 
     const storedAvatar = localStorage.getItem('selectedAvatar')
     if (storedAvatar) {
@@ -95,20 +105,33 @@ function Profile({ onAvatarSelect, setIsLoggedIn, setIsAdmin, setHeaderAvatar })
   }
 
   const handleSaveClick = () => {
-    setLastName(editLastName)
-    setFirstName(editFirstName)
-    setSecondName(editSecondName)
-    setUsername(editUsername)
-    setEmail(editEmail)
-
-    localStorage.setItem('lastName', editLastName)
-    localStorage.setItem('firstName', editFirstName)
-    localStorage.setItem('secondName', editSecondName)
-    localStorage.setItem('username', editUsername)
-    localStorage.setItem('email', editEmail)
-
-    setMessage('Данные профиля сохранены.')
-    setIsEditing(false)
+    const payload = {
+      firstName: editFirstName,
+      lastName: editLastName,
+      email: editEmail,
+      userName: editUsername
+    }
+    axios
+      .put('/user/profile', payload)
+      .then((response) => {
+        setLastName(editLastName)
+        setFirstName(editFirstName)
+        setSecondName(editSecondName)
+        setUsername(editUsername)
+        setEmail(editEmail)
+        // Обновляем localStorage
+        localStorage.setItem('lastName', editLastName)
+        localStorage.setItem('firstName', editFirstName)
+        localStorage.setItem('secondName', editSecondName)
+        localStorage.setItem('username', editUsername)
+        localStorage.setItem('email', editEmail)
+        setMessage('Данные профиля сохранены.')
+        setIsEditing(false)
+      })
+      .catch((error) => {
+        setMessage('Ошибка сохранения профиля.')
+        console.error(error)
+      })
   }
 
   const handleFileChange = (e) => {
@@ -163,7 +186,6 @@ function Profile({ onAvatarSelect, setIsLoggedIn, setIsAdmin, setHeaderAvatar })
     if (setIsLoggedIn) setIsLoggedIn(false)
     if (setIsAdmin) setIsAdmin(false)
 
-    // Сбрасываем аватарку в шапке
     if (setHeaderAvatar) {
       setHeaderAvatar('')
     }
