@@ -1,19 +1,28 @@
 import React, { useState } from 'react'
 
 function StartExchange() {
+  // Управление переходами между экранами:
+  // 1 – Главное окно (Скрин 1), 2 – Форма добавления книги (Скрин 2),
+  // 3 – Выбор жанров (Скрин 3), 4 – Подтверждение выбора (Скрин 4)
   const [step, setStep] = useState(1)
   const [errors, setErrors] = useState([])
 
+  // Данные книги (используются на Скрин 2)
   const [giveTitle, setGiveTitle] = useState('')
   const [giveAuthor, setGiveAuthor] = useState('')
   const [giveYear, setGiveYear] = useState('')
   const [giveISBN, setGiveISBN] = useState('')
 
+  // Данные для выбора жанров (на Скринах 3 и 4)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectAll, setSelectAll] = useState(false)
   const [selectedGenres, setSelectedGenres] = useState([])
 
-  const [selectedRegion, setSelectedRegion] = useState('');
+  // Список книг, добавленных пользователем (отображается на Скрине 1)
+  const [userBooks, setUserBooks] = useState([])
+
+  // Состояния для адреса (хоть сейчас и не используются, но оставлены для полноты)
+  const [selectedRegion, setSelectedRegion] = useState('')
   const [city, setCity] = useState('')
   const [street, setStreet] = useState('')
   const [house, setHouse] = useState('')
@@ -24,7 +33,7 @@ function StartExchange() {
     'Самарская область': ['Самара', 'Тольятти', 'Сызрань', 'Новокуйбышевск', 'Чапаевск', 'Жигулёвск', 'Кинель', 'Отрадный'],
     'Респ. Адыгея': ['Майкоп', 'Адыгейск', 'Яблоновский'],
     'Репс. Алтай': ['Горно-Алтайск', 'Майма', 'Чемал'],
-    'Респ. Башкартостан': ['Уфа', 'Стерлитамак', 'Салават', 'Нефтекамск', 'Октябрьский'],
+    'Респ. Башкаростан': ['Уфа', 'Стерлитамак', 'Салават', 'Нефтекамск', 'Октябрьский'],
     'ДНР': ['Донецк', 'Макеевка', 'Горловка', 'Мариуполь'],
     'Респ. Ингушетия': ['Магас', 'Назрань', 'Карабулак'],
     'Кабардино-Балкарска Респ.': ['Нальчик', 'Баксан', 'Прохладный'],
@@ -105,18 +114,18 @@ function StartExchange() {
     'Ханты-Мансийский АО - Югра': ['Ханты-Мансийск', 'Сургут', 'Нижневартовск'],
     'Чукотский АО': ['Анадырь', 'Эгвекинот', 'Билибино'],
     'Ямало-Ненецкий АО': ['Салехард', 'Новый Уренгой', 'Ноябрьск'],
-};
-
+  }
 
   const handleRegionChange = (e) => {
-    setSelectedRegion(e.target.value);
-    setCity(''); // Сброс выбранного города при изменении региона
-  };
+    setSelectedRegion(e.target.value)
+    setCity('')
+  }
 
   const handleCityChange = (e) => {
-    setCity(e.target.value);
-  };
+    setCity(e.target.value)
+  }
 
+  // Массив всех жанров (сохранён полностью)
   const allGenres = [
     'Эпическое фэнтези',
     'Темное фэнтези',
@@ -149,7 +158,7 @@ function StartExchange() {
     'Эзотерическая литература',
     'Любовный роман',
     'Исторический роман',
-    'Современный роман',
+    'Современная проза',
     'Психологический роман',
     'Социальный роман',
     'Эротический роман',
@@ -278,66 +287,123 @@ function StartExchange() {
     g.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  const handleNext = () => {
-    const newErrors = [];
-    if (step === 1) {
-      if (!giveTitle.trim()) newErrors.push('Укажите название книги');
-      if (!giveAuthor.trim()) newErrors.push('Укажите автора книги');
-      if (!giveYear.trim()) {
-        newErrors.push('Укажите год издания');
-      } else {
-        const yearNum = parseInt(giveYear, 10);
-        if (yearNum >= 2026) newErrors.push('Неверный год издания');
-      }
-      if (giveISBN && (giveISBN.length < 10 || giveISBN.length > 13)) {
-        newErrors.push('Неверный ISBN');
-      }
-      if (newErrors.length === 0) {
-        setErrors([]);
-        setStep(2);
-        return;
-      }
-    }
-    if (step === 2) {
-      if (selectedGenres.length === 0) {
-        newErrors.push('Пожалуйста, выберите хотя бы один жанр.');
-      }
-      if (newErrors.length === 0) {
-        setErrors([]);
-        setStep(3);
-        return;
-      }
-    }
-    setErrors(newErrors);
-  };
-  
-
-  const handleBack = () => {
-    setErrors([])
-    setStep(step - 1)
-  }
-
-  const handleSubmit = () => {
+  // Обработчик для Скрина 2: добавление книги (валидация и переход на Скрин 1)
+  const handleBookNext = () => {
     const newErrors = []
-    if (!city.trim() || !street.trim() || !house.trim()) {
-      newErrors.push('Пожалуйста, заполните все поля адреса доставки.')
+    if (!giveTitle.trim()) newErrors.push('Укажите название книги')
+    if (!giveAuthor.trim()) newErrors.push('Укажите автора книги')
+    if (!giveYear.trim()) {
+      newErrors.push('Укажите год издания')
+    } else {
+      const yearNum = parseInt(giveYear, 10)
+      if (yearNum >= 2026) newErrors.push('Неверный год издания')
+    }
+    if (giveISBN && (giveISBN.length < 10 || giveISBN.length > 13)) {
+      newErrors.push('Неверный ISBN')
     }
     if (newErrors.length === 0) {
-      setErrors([])
+      // Добавляем книгу в список
+      setUserBooks((prev) => [
+        ...prev,
+        { title: giveTitle, author: giveAuthor, year: giveYear, isbn: giveISBN }
+      ])
+      // Очищаем поля ввода
       setGiveTitle('')
       setGiveAuthor('')
       setGiveYear('')
       setGiveISBN('')
+      setErrors([])
+      // Возвращаемся на главный экран (Скрин 1)
+      setStep(1)
+    } else {
+      setErrors(newErrors)
+    }
+  }
+
+  // Новый обработчик для кнопки "Назад" на Скрине 2, чтобы изменения не сохранялись
+  const handleBookBack = () => {
+    setGiveTitle('')
+    setGiveAuthor('')
+    setGiveYear('')
+    setGiveISBN('')
+    setErrors([])
+    setStep(1)
+  }
+
+  // Обработчик для Скрина 3: выбор жанров (валидация и переход на Скрин 4)
+  const handleGenreNext = () => {
+    const newErrors = []
+    if (selectedGenres.length === 0) {
+      newErrors.push('Пожалуйста, выберите хотя бы один жанр.')
+    }
+    if (newErrors.length === 0) {
+      setErrors([])
+      setStep(4)
+    } else {
+      setErrors(newErrors)
+    }
+  }
+
+  // Кнопка "Назад":
+  // Если на Скрине 3 – возвращаемся на главный экран (Скрин 1) и отменяем изменения
+  // Если на Скрине 4 – возвращаемся к выбору жанров (Скрин 3)
+  const handleBack = () => {
+    setErrors([])
+    if (step === 3) {
+      // Отменяем выбор жанров
       setSelectedGenres([])
       setSearchQuery('')
       setSelectAll(false)
-      setCity('')
-      setStreet('')
-      setHouse('')
       setStep(1)
+    } else if (step === 4) {
+      setStep(3)
+    }
+  }
+
+  // На Скрине 4 кнопка "Подтвердить обмен" возвращает нас на главный экран
+  const handleConfirmExchange = () => {
+    setErrors([])
+    // Здесь можно добавить логику обмена, если потребуется
+    setStep(1)
+  }
+
+  // Генерация трек-номера: 12-значное число, только цифры
+  const generateTrackNumber = () => {
+    let number = ''
+    for (let i = 0; i < 12; i++) {
+      number += Math.floor(Math.random() * 10)
+    }
+    return number
+  }
+
+  // Нажатие "Создать заявку" на Шаге 1
+  // Генерируем трек-номер и сохраняем запись в localStorage (чтобы MyExchanges.jsx её прочитал)
+  const handleCreateRequest = () => {
+    // Проверим, есть ли хотя бы одна книга и один жанр
+    if (userBooks.length === 0) {
+      setErrors(['Сначала добавьте хотя бы одну книгу.'])
       return
     }
-    setErrors(newErrors)
+    if (selectedGenres.length === 0) {
+      setErrors(['Сначала выберите хотя бы один жанр.'])
+      return
+    }
+    // Если всё ок, генерируем трек-номер и сохраняем
+    setErrors([])
+    const trackNumber = generateTrackNumber()
+    // Сохраняем в localStorage
+    const newExchange = {
+      trackNumber,
+      // Для примера берём первую книгу и первый жанр (либо можно доработать логику выбора)
+      book: userBooks[0]?.title || 'Не выбрано',
+      genre: selectedGenres[0] || 'Не выбрано',
+      date: new Date().toISOString()
+    }
+    let savedExchanges = JSON.parse(localStorage.getItem('exchanges') || '[]')
+    savedExchanges.push(newExchange)
+    localStorage.setItem('exchanges', JSON.stringify(savedExchanges))
+    // Показываем трек-номер
+    alert(`Заявка успешно создана!\nТрек номер: ${trackNumber}`)
   }
 
   return (
@@ -346,11 +412,135 @@ function StartExchange() {
 
       {step === 1 && (
         <div className="step-content">
-          <h3>Шаг 1: Хочу обменять</h3>
+          <h3>Скрин 1: Выберите действие</h3>
+
+          {/* Таблица фиксированной ширины, одинаковые колонки */}
+          <table
+            style={{
+              width: '600px',
+              margin: '0 auto',
+              borderCollapse: 'collapse',
+              tableLayout: 'fixed'
+            }}
+          >
+            <thead>
+              <tr>
+                {/* Левая колонка: "Что у вас есть на обмен" + кнопка "Добавить" */}
+                <th
+                  style={{
+                    width: '50%',
+                    border: '1px solid #ccc',
+                    textAlign: 'center',
+                    padding: '10px'
+                  }}
+                >
+                  <div style={{ marginBottom: '10px', fontWeight: 'bold' }}>
+                    Что у вас есть на обмен
+                  </div>
+                  <button
+                    onClick={() => setStep(2)}
+                    style={{
+                      width: '90%',
+                      marginBottom: '10px'
+                    }}
+                  >
+                    Добавить
+                  </button>
+                </th>
+                {/* Правая колонка: "Что вы хотите получить" + кнопка "Выбрать" */}
+                <th
+                  style={{
+                    width: '50%',
+                    border: '1px solid #ccc',
+                    textAlign: 'center',
+                    padding: '10px'
+                  }}
+                >
+                  <div style={{ marginBottom: '10px', fontWeight: 'bold' }}>
+                    Что вы хотите получить
+                  </div>
+                  <button
+                    onClick={() => setStep(3)}
+                    style={{
+                      width: '90%',
+                      marginBottom: '10px'
+                    }}
+                  >
+                    Выбрать
+                  </button>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                {/* Ячейка с книгами */}
+                <td
+                  style={{
+                    border: '1px solid #ccc',
+                    padding: '10px',
+                    verticalAlign: 'top'
+                  }}
+                >
+                  {userBooks.map((book, index) => {
+                    // чередование фона
+                    const bgColor = index % 2 === 0 ? '#f7f7f7' : '#ededed'
+                    return (
+                      <div
+                        key={index}
+                        style={{
+                          marginBottom: '5px',
+                          padding: '5px',
+                          backgroundColor: bgColor
+                        }}
+                      >
+                        {book.title} ({book.year})
+                        {book.isbn ? ` (ISBN: ${book.isbn})` : ''}
+                      </div>
+                    )
+                  })}
+                </td>
+                {/* Ячейка с выбранными жанрами */}
+                <td
+                  style={{
+                    border: '1px solid #ccc',
+                    padding: '10px',
+                    verticalAlign: 'top'
+                  }}
+                >
+                  {selectedGenres.map((genre, index) => {
+                    // чередование фона
+                    const bgColor = index % 2 === 0 ? '#f7f7f7' : '#ededed'
+                    return (
+                      <div
+                        key={index}
+                        style={{
+                          marginBottom: '5px',
+                          padding: '5px',
+                          backgroundColor: bgColor
+                        }}
+                      >
+                        {genre}
+                      </div>
+                    )
+                  })}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          {/* Кнопка "Создать заявку" внизу */}
+          <div style={{ marginTop: '20px', textAlign: 'center' }}>
+            <button onClick={handleCreateRequest}>Создать заявку</button>
+          </div>
+        </div>
+      )}
+
+      {step === 2 && (
+        <div className="step-content">
+          <h3>Скрин 2: Добавить книгу</h3>
           <div className="form-group">
             <label>Название книги:</label>
             <input
-              //style={{ width: '90%' }}
               type="text"
               value={giveTitle}
               onChange={(e) => setGiveTitle(e.target.value)}
@@ -360,7 +550,6 @@ function StartExchange() {
           <div className="form-group">
             <label>Автор:</label>
             <input
-              //style={{ width: '90%' }}
               type="text"
               value={giveAuthor}
               onChange={(e) => setGiveAuthor(e.target.value)}
@@ -373,7 +562,6 @@ function StartExchange() {
           <div className="form-group">
             <label>Год издания:</label>
             <input
-              //style={{ width: '90%' }}
               type="text"
               value={giveYear}
               onChange={(e) => setGiveYear(e.target.value)}
@@ -402,19 +590,20 @@ function StartExchange() {
               display: 'flex',
               gap: '20px',
               marginTop: '20px',
-              justifyContent: 'flex-end',
+              justifyContent: 'flex-end'
             }}
           >
-            <button onClick={handleNext}>Далее</button>
+            <button onClick={handleBookBack}>Назад</button>
+            <button onClick={handleBookNext}>Далее</button>
           </div>
         </div>
       )}
 
-      {step === 2 && (
+      {step === 3 && (
         <div className="step-content">
-          <h3>Шаг 2: Хочу получить</h3>
-          <p>Выберите один или несколько жанров:</p>
-          <div style={{ marginBottom: '10px'}}>
+          <h3>Скрин 3: Выбор жанров</h3>
+          <p>Отметьте жанры, которые вы хотите получить:</p>
+          <div style={{ marginBottom: '10px' }}>
             <input
               type="text"
               value={searchQuery}
@@ -428,7 +617,7 @@ function StartExchange() {
                 )
               }}
               placeholder="Поиск по жанрам..."
-              style={{ width: '90%'}}
+              style={{ width: '90%' }}
             />
           </div>
           <div style={{ marginBottom: '10px' }}>
@@ -447,11 +636,11 @@ function StartExchange() {
               overflowY: 'auto',
               border: '1px solid #ccc',
               borderRadius: '4px',
-              padding: '10px',
+              padding: '10px'
             }}
           >
             {filteredGenres.map((genre) => (
-              <div key={genre} style={{ marginBottom: '5px'}}>
+              <div key={genre} style={{ marginBottom: '5px' }}>
                 <label>
                   <input
                     type="checkbox"
@@ -469,91 +658,36 @@ function StartExchange() {
               display: 'flex',
               gap: '20px',
               marginTop: '20px',
-              justifyContent: 'flex-start',
+              justifyContent: 'flex-start'
             }}
           >
             <button onClick={handleBack}>Назад</button>
-            <button onClick={handleNext}>Далее</button>
+            <button onClick={handleGenreNext}>Далее</button>
           </div>
         </div>
       )}
 
-      {step === 3 && (
+      {step === 4 && (
         <div className="step-content">
-          <h3>Шаг 3: Адрес доставки</h3>
-          <div className="form-group">
-            <label>Регион:</label>
-            <select
-              value={selectedRegion}
-              onChange={handleRegionChange}
-              style={{ width: '90%' }}
-            >
-              <option value="">Выберите регион</option>
-              {Object.keys(regions).map((region) => (
-                <option key={region} value={region}>
-                  {region}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="form-group">
-            <label>Город:</label>
-            <select
-              value={city}
-              onChange={handleCityChange}
-              style={{ width: '90%' }}
-              disabled={!selectedRegion}
-            >
-              <option value="">Выберите город</option>
-              {selectedRegion &&
-                regions[selectedRegion].map((cityName) => (
-                  <option key={cityName} value={cityName}>
-                    {cityName}
-                  </option>
-                ))}
-            </select>
-          </div>
-          <div className="form-group">
-            <label>Улица:</label>
-            <input
-              style={{ width: '90%' }}
-              type="text"
-              value={street}
-              onChange={(e) => setStreet(e.target.value)}
-              placeholder="Тверская"
-              pattern="^[A-Za-zА-Яа-яЁё\s-]+$"
-              title="Только буквы, пробелы и дефисы"
-              onKeyDown={onlyLetters}
-            />
-          </div>
-          <div className="form-group">
-            <label>Дом/Кв.:</label>
-            <input
-              style={{ width: '90%' }}
-              type="text"
-              value={house}
-              onChange={(e) => setHouse(e.target.value)}
-              placeholder="10, кв. 12"
-              pattern="^[0-9]+$"
-              title="Только цифры"
-              onKeyDown={onlyDigits}
-            />
-          </div>
-          <div
-            className="step-navigation"
-            style={{
-              display: 'flex',
-              gap: '20px',
-              marginTop: '20px',
-              justifyContent: 'flex-start',
-            }}
-          >
-            <button onClick={handleBack}>Назад</button>
-            <button onClick={handleSubmit}>Подтвердить обмен</button>
+          <h3>Скрин 4: Подтверждение выбора</h3>
+          <p>Вы выбрали следующие жанры:</p>
+          <ul style={{ marginBottom: '20px' }}>
+            {selectedGenres.map((genre, index) => (
+              <li key={index}>{genre}</li>
+            ))}
+          </ul>
+          <div>
+            <button onClick={handleBack} style={{ marginRight: '10px' }}>
+              Назад
+            </button>
+            <button onClick={handleConfirmExchange}>
+              Подтвердить обмен
+            </button>
           </div>
         </div>
       )}
 
+      {/* Выводим ошибки, если есть */}
       {errors.length > 0 && (
         <div style={{ marginTop: '20px' }}>
           {errors.map((err, i) => (
