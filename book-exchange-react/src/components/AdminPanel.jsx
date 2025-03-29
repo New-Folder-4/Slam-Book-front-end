@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 
 function AdminPanel() {
-  const [users, setUsers] = useState([
-    { id: 1, name: 'UserOne', blocked: false, chatMessages: 0 },
-    { id: 2, name: 'UserTwo', blocked: true, chatMessages: 5 },
-    { id: 3, name: 'UserThree', blocked: false, chatMessages: 0 },
-  ])
+  const [users, setUsers] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
   const [colWidths, setColWidths] = useState([40, 350, 200, 120, 160])
   const [draggingCol, setDraggingCol] = useState(-1)
@@ -15,12 +12,39 @@ function AdminPanel() {
 
   const navigate = useNavigate()
 
+  useEffect(() => {
+    document.title = 'Админ-панель'
+    // Получаем список пользователей с Back-end
+    axios
+      .get('/admin/users')
+      .then((response) => {
+        setUsers(response.data)
+      })
+      .catch((error) => {
+        console.error('Ошибка получения пользователей:', error)
+        // В случае ошибки можно оставить демо-данные
+        setUsers([
+          { id: 1, name: 'UserOne', blocked: false, chatMessages: 0 },
+          { id: 2, name: 'UserTwo', blocked: true, chatMessages: 5 },
+          { id: 3, name: 'UserThree', blocked: false, chatMessages: 0 },
+        ])
+      })
+  }, [])
+
   const handleBlockToggle = (userId) => {
-    setUsers((prev) =>
-      prev.map((u) =>
-        u.id === userId ? { ...u, blocked: !u.blocked } : u
-      )
-    )
+    // Вызываем API для блокировки/разблокировки
+    axios
+      .post(`/admin/blockUser/${userId}`)
+      .then(() => {
+        setUsers((prev) =>
+          prev.map((u) =>
+            u.id === userId ? { ...u, blocked: !u.blocked } : u
+          )
+        )
+      })
+      .catch((error) => {
+        console.error('Ошибка блокировки пользователя:', error)
+      })
   }
 
   const filteredUsers = users.filter((u) =>

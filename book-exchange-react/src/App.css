@@ -594,5 +594,5 @@ button:hover {
 
 /* Например, можно явно задать каждому блоку рамку/тень: */
 .screen1-container > div {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
