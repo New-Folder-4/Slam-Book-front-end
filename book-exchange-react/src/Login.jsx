@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
 function Login({ setIsLoggedIn, setIsAdmin }) {
-  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [message, setMessage] = useState('')
   const [isError, setIsError] = useState(false)
@@ -14,7 +14,8 @@ function Login({ setIsLoggedIn, setIsAdmin }) {
     document.title = 'Авторизация'
   }, [])
 
-  const onlyUsernameChars = (e) => {
+  // Функция разрешает ввод латинских букв, цифр, @, . , _ и -
+  const onlyEmailChars = (e) => {
     if (
       !(
         e.key === 'Backspace' ||
@@ -22,7 +23,7 @@ function Login({ setIsLoggedIn, setIsAdmin }) {
         e.key === 'Tab' ||
         e.key === 'ArrowLeft' ||
         e.key === 'ArrowRight' ||
-        /[A-Za-z0-9_]/.test(e.key)
+        /[A-Za-z0-9@._-]/.test(e.key)
       )
     ) {
       e.preventDefault()
@@ -34,29 +35,21 @@ function Login({ setIsLoggedIn, setIsAdmin }) {
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    // Подготовка payload: используем значение username как email для API
+    // ИЗМЕНЕНИЕ ТОЛЬКО ЗДЕСЬ:
     const payload = {
-      email: username,
+      username: email, // Вместо { email, password } отправляем { username: email, password }
       password
     }
 
     axios
-      .post('/auth/login', payload)
+      .post('http://localhost:1934/auth/login', payload)
       .then((response) => {
         setIsError(false)
         setMessage('Вы успешно авторизованы.')
-        // Допустим, в ответе приходит токен, который можно сохранить (например, response.data.token)
-        if (response.data.token) {
-          localStorage.setItem('token', response.data.token)
-        }
-        // Сохраняем данные в localStorage для сохранения функционала
-        localStorage.setItem('username', username)
-        // Если админ, можно установить специальное значение (API может вернуть информацию о роли)
-        if (username === 'admin') {
-          localStorage.setItem('isAdmin', 'true')
+        // Обработка успешного входа
+        if (email === 'admin@example.com') {
           setIsAdmin(true)
         } else {
-          localStorage.setItem('isAdmin', 'false')
           setIsAdmin(false)
         }
         setIsLoggedIn(true)
@@ -64,7 +57,7 @@ function Login({ setIsLoggedIn, setIsAdmin }) {
       })
       .catch((error) => {
         setIsError(true)
-        setMessage('Неверный ник или пароль')
+        setMessage('Неверный email или пароль')
         console.error(error)
       })
   }
@@ -72,20 +65,17 @@ function Login({ setIsLoggedIn, setIsAdmin }) {
   return (
     <div className="profile-page page-fade-in">
       <h2>Авторизация</h2>
-      <form
-        onSubmit={handleSubmit}
-        style={{ width: '100%', maxWidth: '640px', margin: '0 auto' }}
-      >
+      <form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: '640px', margin: '0 auto' }}>
         <div className="form-group">
-          <label>Ник:</label>
+          <label>Username:</label>
           <input
             type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Ваш ник"
-            pattern="^[A-Za-z0-9_]+$"
-            title="Только латинские буквы, цифры и подчёркивания"
-            onKeyDown={onlyUsernameChars}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Ваш email"
+            pattern="^[A-Za-z0-9@._\\-]+$"
+            title="Введите корректный email (латиница, цифры, символы @, . , _ и \\-)"
+            onKeyDown={onlyEmailChars}
           />
         </div>
         <div className="form-group">

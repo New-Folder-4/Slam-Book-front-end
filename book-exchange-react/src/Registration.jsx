@@ -74,29 +74,23 @@ function Registration({ setIsLoggedIn, setIsAdmin }) {
       return
     }
 
-    // Подготовка payload для регистрации (согласно OpenAPI схема RegisterRequest)
-    const payload = {
-      firstName,
-      lastName,
-      email,
-      password
-    }
+ const payload = {
+  firstName,
+  lastName,
+  secondName, // если требуется
+  username,   // добавлено поле username
+  email,
+  password
+}
 
     axios
-      .post('/auth/register', payload)
+      .post('http://localhost:1934/auth/register', payload)
       .then((response) => {
         setIsError(false)
         setMessage('Регистрация прошла успешно!')
-        // Сохраняем данные в localStorage (для сохранения функционала)
-        localStorage.setItem('lastName', lastName)
-        localStorage.setItem('firstName', firstName)
-        localStorage.setItem('secondName', secondName)
-        localStorage.setItem('username', username)
-        localStorage.setItem('email', email)
-        localStorage.setItem('isAdmin', 'false')
         setIsLoggedIn(true)
         setIsAdmin(false)
-        // Сброс полей
+        // Очистка полей после успешной регистрации
         setLastName('')
         setFirstName('')
         setSecondName('')
@@ -129,7 +123,7 @@ function Registration({ setIsLoggedIn, setIsAdmin }) {
             onChange={(e) => setLastName(e.target.value)}
             placeholder="Иванов"
             maxLength={50}
-            pattern="^[A-Za-zА-Яа-яЁё\s-]+$"
+            pattern="^[A-Za-zА-Яа-яЁё\s\\-]+$"
             title="Только буквы, пробелы и дефисы"
             onKeyDown={onlyLetters}
           />
@@ -142,7 +136,7 @@ function Registration({ setIsLoggedIn, setIsAdmin }) {
             onChange={(e) => setFirstName(e.target.value)}
             placeholder="Иван"
             maxLength={25}
-            pattern="^[A-Za-zА-Яа-яЁё\s-]+$"
+            pattern="^[A-Za-zА-Яа-яЁё\s\\-]+$"
             title="Только буквы, пробелы и дефисы"
             onKeyDown={onlyLetters}
           />
@@ -155,7 +149,7 @@ function Registration({ setIsLoggedIn, setIsAdmin }) {
             onChange={(e) => setSecondName(e.target.value)}
             placeholder="Отчество (необязательно)"
             maxLength={25}
-            pattern="^[A-Za-zА-Яа-яЁё\s-]*$"
+            pattern="^[A-Za-zА-Яа-яЁё\s\\-]*$"
             title="Только буквы, пробелы и дефисы"
             onKeyDown={onlyLetters}
           />
@@ -167,7 +161,7 @@ function Registration({ setIsLoggedIn, setIsAdmin }) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="example@mail.ru"
-            pattern="^[A-Za-z0-9@._-]+$"
+            pattern="^[A-Za-z0-9@._\\-]+$"
             title="Только латиница, цифры, символы @._-"
             onKeyDown={onlyEmailChars}
           />
