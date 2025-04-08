@@ -38,9 +38,9 @@ function App() {
 
   return (
     <div className="app-container">
-      {/* Боковое меню, только если залогинен */}
+      {/* Боковое меню для Desktop */}
       {isLoggedIn && (
-        <aside className="side-menu">
+        <aside className="side-menu desktop-only">
           <nav>
             <ul>
               <li><Link to="/">Главная</Link></li>
@@ -65,13 +65,32 @@ function App() {
       <main className="main-content" style={mainContentStyle}>
         {/* Верхняя шапка */}
         <header className="top-header">
-          {/* Слева: логотип + (если не залогинен) ссылка Главная */}
+          {/* Слева: логотип + (если не залогинен) ссылка "Главная" */}
           <div className="header-left-block">
             <img src="/images/logo.png" alt="Site Logo" className="site-logo" />
             {!isLoggedIn && (
               <Link to="/" style={{ color: '#ecf0f1' }}>Главная</Link>
             )}
           </div>
+
+          {/* Меню-карусель для Mobile (скрыто на Desktop) */}
+          {isLoggedIn && (
+            <nav className="menu-carousel mobile-only">
+              <ul>
+                <li><Link to="/">Главная</Link></li>
+                <li><Link to="/start-exchange">Начать обмен</Link></li>
+                <li><Link to="/my-exchanges">Мои обмены</Link></li>
+                <li><Link to="/profile">Личный кабинет</Link></li>
+                <li><Link to="/feedback">Обратная связь</Link></li>
+                {isAdmin && (
+                  <>
+                    <li><Link to="/admin">Админ-панель</Link></li>
+                    <li><Link to="/support-chat/1">Чат поддержки</Link></li>
+                  </>
+                )}
+              </ul>
+            </nav>
+          )}
 
           {/* Справа: аватарка / Авторизация / Регистрация */}
           <div className="user-block">
@@ -135,13 +154,6 @@ function App() {
           </Routes>
         </div>
       </main>
-
-      {/* Убираем mobile-footer (или скрываем через CSS) */}
-      {/*
-      <div className="mobile-footer">
-        <p>© 2025 Сервис обмена книгами</p>
-      </div>
-      */}
     </div>
   )
 }

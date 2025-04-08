@@ -3,7 +3,7 @@
   --sidebar-bg-color: #2c3e50;
   --sidebar-text-color: #ecf0f1;
   --accent-color: #3498db;
-  --accent-color-hover: #2980b9;
+  --accent-color-hover: #8e44ad; /* При наведении кнопки становятся фиолетовыми */
   --text-color: #2c3e50;
   --white-color: #fff;
 }
@@ -19,7 +19,8 @@ html, body {
   background: var(--main-bg-color);
   color: var(--text-color);
   font-family: 'Open Sans', Arial, sans-serif;
-  overflow-x: hidden;
+  overflow-x: visible;
+  overflow-y: visible;
 }
 
 a {
@@ -31,24 +32,27 @@ html {
   font-size: clamp(14px, 1.4vw, 20px);
 }
 
+/* --- Доп.классы для управления показом в мобильной / десктопной версии --- */
+.desktop-only {
+  display: block; /* по умолчанию показываем на десктопе */
+}
+.mobile-only {
+  display: none;  /* скрыто, показываем только в медиа @max-width:768px */
+}
+
 /* --- Боковое меню (side-menu) --- */
 .side-menu {
   width: 220px;
   background: var(--sidebar-bg-color);
   color: var(--sidebar-text-color);
-
-  /* Вместо top: 0 → top: 70px; 
-     чтобы меню начиналось под верхней шапкой */
   position: fixed;
   top: 70px;
   bottom: 0;
   left: 0;
-
   z-index: 10000; /* Выше шапки (9999) */
   display: flex;
   flex-direction: column;
 }
-/* Убрали логотип из side-menu (он в шапке) */
 .side-menu nav {
   flex: 1;
 }
@@ -75,11 +79,8 @@ html {
 
 /* --- Основной контейнер (main-content) --- */
 .main-content {
-  /* Раньше было top: 70px; 
-     Теперь, если меню тоже смещено на 70px, 
-     можно оставить так, чтобы контент тоже начинался под шапкой */
   position: relative;
-  top: 70px; 
+  top: 70px;
   height: calc(100vh - 70px);
   overflow-y: auto;
   display: flex;
@@ -95,16 +96,13 @@ html {
   padding: 10px 20px;
   display: flex;
   align-items: center;
-  justify-content: space-between; /* логотип слева, user-block справа */
-
+  justify-content: space-between;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 9999; /* side-menu выше (10000) */
+  z-index: 9999;
 }
-
-/* Левая часть шапки: логотип + (для незалогиненных) ссылка Главная */
 .header-left-block {
   display: flex;
   align-items: center;
@@ -115,8 +113,6 @@ html {
   height: auto;
   display: block;
 }
-
-/* Правая часть шапки: аватарка, ссылки "Авторизация / Регистрация" */
 .user-block {
   text-align: right;
   display: flex;
@@ -127,13 +123,52 @@ html {
   color: var(--sidebar-text-color);
   margin-left: 15px;
 }
-
-/* Аватарка в шапке */
 .header-avatar {
   width: 50px;
   height: 50px;
   border-radius: 50%;
   object-fit: cover;
+}
+
+/* Меню-карусель (для мобильной версии) */
+.menu-carousel {
+  display: none;
+  overflow-x: auto;
+  white-space: nowrap;
+  margin: 0 10px;
+  position: relative;
+
+  /* Эффект исчезновения вкладок слева и справа (mask) */
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 60px, black calc(100% - 60px), transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0%, black 60px, black calc(100% - 60px), transparent 100%);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+
+  /* Скрываем скроллбар */
+  -ms-overflow-style: none;  /* IE, Edge */
+  scrollbar-width: none;      /* Firefox */
+}
+.menu-carousel::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+.menu-carousel ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+  /* Небольшое искажение */
+  transform: skewX(-1.5deg);
+}
+.menu-carousel li {
+  transform: skewX(1.5deg);
+  margin: 0 5px;
+}
+.menu-carousel li a {
+  color: #ecf0f1;
+  padding: 15px 10px;
+  white-space: nowrap;
 }
 
 /* Контент внутри page-content */
@@ -155,7 +190,7 @@ button:hover {
   background: var(--accent-color-hover);
 }
 
-/* --- Эффекты fade-in (если нужны) --- */
+/* --- Эффекты fade-in --- */
 .fade-in-bg,
 .fade-in-text,
 .fade-in-text-delay,
@@ -489,39 +524,46 @@ button:hover {
 
 /* --- МЕДИА (мобилки) --- */
 @media (max-width: 768px) {
-  .side-menu {
-    position: static;
-    width: 100%;
-    height: auto;
-    flex-direction: row;
-    align-items: center;
-    overflow-x: auto;
-    white-space: nowrap;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    z-index: 10000;
-    top: 0; /* На мобилке можно вернуть top:0, т.к. меню может вести себя иначе */
+  /* Прячем сайдбар (desktop-only), показываем mobile-only */
+  .desktop-only {
+    display: none !important;
   }
-  .side-menu nav,
-  .side-menu .footer {
-    display: inline-block;
-    vertical-align: middle;
-    padding: 20px;
-    border-bottom: none;
+  .mobile-only {
+    display: block !important;
   }
-  .side-menu ul {
-    display: inline-flex;
-    flex-direction: row;
-    margin: 0;
-    padding: 0;
+
+  /* Убираем горизонтальную прокрутку и полосу прокрутки */
+  html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
-  .side-menu li {
-    display: inline-block;
-  }
-  .side-menu li a {
-    padding: 15px 10px;
-  }
-  .side-menu .footer {
+  html::-webkit-scrollbar, body::-webkit-scrollbar {
     display: none;
+  }
+
+  .side-menu {
+    display: none !important; /* На телефонах боковое меню скрыто */
+  }
+
+  /* Шапка: Лого слева, меню-карусель (прокручиваемое) по центру, аватар справа */
+  .top-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  .header-left-block {
+    flex-shrink: 0;
+  }
+  .menu-carousel {
+    display: flex;
+    flex: 1;
+    margin: 0 10px;
+  }
+  .user-block {
+    flex-shrink: 0;
   }
 
   .main-content {
@@ -534,6 +576,7 @@ button:hover {
   .page-content {
     padding: 20px;
   }
+
   .avatar-grid {
     grid-template-columns: repeat(3, 64px);
     grid-template-rows: repeat(5, 64px);
@@ -581,6 +624,29 @@ button:hover {
     margin-left: 10%;
     width: 80%;
   }
+
+  /* Кнопки "Назад" и "Далее" на одном уровне, одинаковый размер */
+  .step-navigation {
+    flex-direction: row !important;
+    justify-content: center !important;
+    gap: 10px !important;
+  }
+  .step-navigation button {
+    flex: 1 1 auto;
+  }
+
+  .admin-panel {
+    padding: 10px;
+    margin: 10px;
+  }
+  .admin-panel .search-block input {
+    width: 100%;
+  }
+  .admin-panel .user-table th,
+  .admin-panel .user-table td {
+    padding: 5px;
+    font-size: 0.9rem;
+  }
 }
 
 /* Убираем mobile-footer */
@@ -591,8 +657,15 @@ button:hover {
 .screen1-container {
   margin-top: 20px;
 }
-
-/* Например, можно явно задать каждому блоку рамку/тень: */
 .screen1-container > div {
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+/* Таблица для обмена книгами */
+.exchange-table {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  border-collapse: collapse;
+  table-layout: fixed;
 }

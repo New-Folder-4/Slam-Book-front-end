@@ -1,126 +1,125 @@
 import React, { useState, useEffect } from 'react'
+import axios from 'axios'
 
 function MyExchanges() {
-  const [trackingNumber, setTrackingNumber] = useState('')
-  const [trackingStatus, setTrackingStatus] = useState('')
-  const [receiptMessage, setReceiptMessage] = useState('')
+  const [offers, setOffers] = useState([])
+  const [wishes, setWishes] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
-  // Новый стейт для хранения созданных заявок (из localStorage)
-  const [exchanges, setExchanges] = useState([])
-
-  // Новый стейт для поиска по трек-номеру
-  const [searchQuery, setSearchQuery] = useState('')
-
-  // При монтировании компонента читаем из localStorage
   useEffect(() => {
-    const savedExchanges = JSON.parse(localStorage.getItem('exchanges') || '[]')
-    setExchanges(savedExchanges)
+    document.title = 'Мои обмены'
+    const token = localStorage.getItem('token') // Токен пользователя
+
+    async function fetchData() {
+      try {
+        setLoading(true)
+        setError('')
+
+        // Получаем предложения (Offers) текущего пользователя
+        const offersRes = await axios.get('http://localhost:1934/offers/my', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+        setOffers(offersRes.data || [])
+
+        // Получаем желания (Wishes) текущего пользователя
+        const wishesRes = await axios.get('http://localhost:1934/wishes/my', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+        setWishes(wishesRes.data || [])
+      } catch (err) {
+        console.error(err)
+        setError('Ошибка при загрузке данных.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
   }, [])
 
-  const onlyDigits = (e) => {
-    if (
-      !(
-        e.key === 'Backspace' ||
-        e.key === 'Delete' ||
-        e.key === 'Tab' ||
-        e.key === 'ArrowLeft' ||
-        e.key === 'ArrowRight' ||
-        /^[0-9]$/.test(e.key)
-      )
-    ) {
-      e.preventDefault()
-    }
+  if (loading) {
+    return <p>Загрузка...</p>
   }
 
-  const submitTracking = () => {
-    if (trackingNumber.trim() !== '') {
-      setTrackingStatus(`Трек-номер ${trackingNumber} отправлен. Ожидайте обновления.`)
-    }
-  }
-
-  const confirmReceipt = () => {
-    setReceiptMessage('Получение книги подтверждено!')
+  if (error) {
+    return <p style={{ color: 'red' }}>{error}</p>
   }
 
   return (
     <div className="profile-page page-fade-in">
       <h2>Мои обмены</h2>
-      <p>Здесь отображаются активные и завершённые обмены (демо).</p>
 
-      {/* Новый блок: Мои созданные заявки (из localStorage) */}
       <div className="sub-block">
-        <h3>Мои созданные заявки</h3>
-        <div style={{ marginBottom: '10px' }}>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Поиск по трек-номеру"
-            style={{ width: '90%', padding: '8px' }}
-          />
-        </div>
-        {exchanges.length === 0 ? (
-          <p>Нет созданных заявок</p>
+        <h3>Мои предложения (Offers)</h3>
+        {offers.length === 0 ? (
+          <p>Нет созданных предложений</p>
         ) : (
           <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
             <thead>
               <tr style={{ background: '#f1f1f1' }}>
-                <th style={{ border: '1px solid #ccc', padding: '8px' }}>Трек-номер</th>
-                <th style={{ border: '1px solid #ccc', padding: '8px' }}>Книга</th>
-                <th style={{ border: '1px solid #ccc', padding: '8px' }}>Жанр</th>
-                <th style={{ border: '1px solid #ccc', padding: '8px' }}>Дата создания</th>
+                <th style={{ border: '1px solid #ccc', padding: '8px' }}>ID Offer</th>
+                <th style={{ border: '1px solid #ccc', padding: '8px' }}>ISBN</th>
+                <th style={{ border: '1px solid #ccc', padding: '8px' }}>Год публикации</th>
+                <th style={{ border: '1px solid #ccc', padding: '8px' }}>Статус</th>
               </tr>
             </thead>
             <tbody>
-              {exchanges.map((ex, index) => {
-                const highlightStyle =
-                  searchQuery && ex.trackNumber.includes(searchQuery)
-                    ? { backgroundColor: '#ffff99' }
-                    : {}
-                return (
-                  <tr key={index}>
-                    <td style={{ border: '1px solid #ccc', padding: '8px', ...highlightStyle }}>
-                      {ex.trackNumber}
-                    </td>
-                    <td style={{ border: '1px solid #ccc', padding: '8px' }}>
-                      {ex.book}
-                    </td>
-                    <td style={{ border: '1px solid #ccc', padding: '8px' }}>
-                      {ex.genre}
-                    </td>
-                    <td style={{ border: '1px solid #ccc', padding: '8px' }}>
-                      {new Date(ex.date).toLocaleString()}
-                    </td>
-                  </tr>
-                )
-              })}
+              {offers.map((offer) => (
+                <tr key={offer.idOfferList}>
+                  <td style={{ border: '1px solid #ccc', padding: '8px' }}>
+                    {offer.idOfferList}
+                  </td>
+                  <td style={{ border: '1px solid #ccc', padding: '8px' }}>
+                    {offer.isbn || '—'}
+                  </td>
+                  <td style={{ border: '1px solid #ccc', padding: '8px' }}>
+                    {offer.yearPublishing ? offer.yearPublishing.split('T')[0] : '—'}
+                  </td>
+                  <td style={{ border: '1px solid #ccc', padding: '8px' }}>
+                    {offer.status}
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         )}
       </div>
 
       <div className="sub-block">
-        <h3>Отправка книги</h3> <br />
-        <div className="form-group">
-          <label>Трек-номер:</label>
-          <input
-            type="text"
-            value={trackingNumber}
-            onChange={(e) => setTrackingNumber(e.target.value)}
-            placeholder="Введите трек-номер"
-            pattern="^[0-9]+$"
-            title="Только цифры"
-            onKeyDown={onlyDigits}
-          />
-        </div>
-        <button onClick={submitTracking}>Отправить трек-номер</button>
-        {trackingStatus && <p>{trackingStatus}</p>}
-      </div>
-
-      <div className="sub-block">
-        <h3>Подтверждение получения книги</h3><br />
-        <button onClick={confirmReceipt}>Подтвердить получение</button>
-        {receiptMessage && <p>{receiptMessage}</p>}
+        <h3>Мои желания (Wishes)</h3>
+        {wishes.length === 0 ? (
+          <p>Нет созданных желаний</p>
+        ) : (
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
+            <thead>
+              <tr style={{ background: '#f1f1f1' }}>
+                <th style={{ border: '1px solid #ccc', padding: '8px' }}>ID Wish</th>
+                <th style={{ border: '1px solid #ccc', padding: '8px' }}>Категории</th>
+                <th style={{ border: '1px solid #ccc', padding: '8px' }}>Статус</th>
+              </tr>
+            </thead>
+            <tbody>
+              {wishes.map((wish) => (
+                <tr key={wish.idWishList}>
+                  <td style={{ border: '1px solid #ccc', padding: '8px' }}>
+                    {wish.idWishList}
+                  </td>
+                  <td style={{ border: '1px solid #ccc', padding: '8px' }}>
+                    {wish.categoryIds ? wish.categoryIds.join(', ') : '—'}
+                  </td>
+                  <td style={{ border: '1px solid #ccc', padding: '8px' }}>
+                    {wish.status}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   )

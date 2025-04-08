@@ -3,30 +3,37 @@ import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
 function Profile({ onAvatarSelect, setIsLoggedIn, setIsAdmin, setHeaderAvatar }) {
+  // Состояния для хранения данных профиля
   const [lastName, setLastName] = useState('')
   const [firstName, setFirstName] = useState('')
   const [secondName, setSecondName] = useState('')
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
 
+  // Состояния для редактирования профиля
   const [editLastName, setEditLastName] = useState('')
   const [editFirstName, setEditFirstName] = useState('')
   const [editSecondName, setEditSecondName] = useState('')
   const [editUsername, setEditUsername] = useState('')
   const [editEmail, setEditEmail] = useState('')
 
+  // Состояния управления интерфейсом
   const [isEditing, setIsEditing] = useState(false)
   const [message, setMessage] = useState('')
   const [selectedAvatar, setSelectedAvatar] = useState('')
-  const [uploadedAvatars, setUploadedAvatars] = useState([])
   const fileInputRef = useRef(null)
   const navigate = useNavigate()
 
+  // Получаем токен из localStorage (если используется)
+  const token = localStorage.getItem('token')
+
+  // При монтировании компонента загружаем профиль и выбранную аватарку
   useEffect(() => {
     document.title = 'Личный кабинет'
-    // Получение профиля с Back-end
-    axios
-      .get('/user/profile')
+
+    axios.get('http://localhost:1934/user/profile', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
       .then((response) => {
         const profile = response.data
         setLastName(profile.lastName || '')
@@ -34,7 +41,6 @@ function Profile({ onAvatarSelect, setIsLoggedIn, setIsAdmin, setHeaderAvatar })
         setSecondName(profile.secondName || '')
         setUsername(profile.userName || '')
         setEmail(profile.email || '')
-        // Сохраняем данные в localStorage для сохранения функционала
         localStorage.setItem('lastName', profile.lastName || '')
         localStorage.setItem('firstName', profile.firstName || '')
         localStorage.setItem('secondName', profile.secondName || '')
@@ -45,12 +51,14 @@ function Profile({ onAvatarSelect, setIsLoggedIn, setIsAdmin, setHeaderAvatar })
         console.error('Ошибка получения профиля:', error)
       })
 
+    // Берём выбранную аватарку из localStorage, если она установлена
     const storedAvatar = localStorage.getItem('selectedAvatar')
     if (storedAvatar) {
       setSelectedAvatar(storedAvatar)
     }
-  }, [])
+  }, [token])
 
+  // Список стандартных аватарок
   const avatarList = [
     '/avatars/avatar1.png',
     '/avatars/avatar2.png',
@@ -69,6 +77,7 @@ function Profile({ onAvatarSelect, setIsLoggedIn, setIsAdmin, setHeaderAvatar })
     '/avatars/avatar15.png'
   ]
 
+  // Функция, разрешающая ввод только букв (английские и русские)
   const onlyLetters = (e) => {
     if (
       !(
@@ -84,6 +93,7 @@ function Profile({ onAvatarSelect, setIsLoggedIn, setIsAdmin, setHeaderAvatar })
     }
   }
 
+  // Функция, запрещающая ввод кириллицы (например, для email)
   const noCyrillic = (e) => {
     const cyrillicPattern = /[а-яА-ЯёЁ]/
     if (cyrillicPattern.test(e.key)) {
@@ -91,6 +101,7 @@ function Profile({ onAvatarSelect, setIsLoggedIn, setIsAdmin, setHeaderAvatar })
     }
   }
 
+  // Обработчик входа в режим редактирования профиля
   const handleEditClick = () => {
     setEditLastName(lastName)
     setEditFirstName(firstName)
@@ -100,10 +111,12 @@ function Profile({ onAvatarSelect, setIsLoggedIn, setIsAdmin, setHeaderAvatar })
     setIsEditing(true)
   }
 
+  // Отмена редактирования
   const handleCancelClick = () => {
     setIsEditing(false)
   }
 
+  // Сохранение изменений профиля
   const handleSaveClick = () => {
     const payload = {
       firstName: editFirstName,
@@ -111,15 +124,15 @@ function Profile({ onAvatarSelect, setIsLoggedIn, setIsAdmin, setHeaderAvatar })
       email: editEmail,
       userName: editUsername
     }
-    axios
-      .put('/user/profile', payload)
+    axios.put('http://localhost:1934/user/profile', payload, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
       .then((response) => {
         setLastName(editLastName)
         setFirstName(editFirstName)
         setSecondName(editSecondName)
         setUsername(editUsername)
         setEmail(editEmail)
-        // Обновляем localStorage
         localStorage.setItem('lastName', editLastName)
         localStorage.setItem('firstName', editFirstName)
         localStorage.setItem('secondName', editSecondName)
@@ -134,40 +147,70 @@ function Profile({ onAvatarSelect, setIsLoggedIn, setIsAdmin, setHeaderAvatar })
       })
   }
 
+  // Обработчик загрузки собственной аватарки
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0]
-      const reader = new FileReader()
-      reader.onload = (ev) => {
-        setUploadedAvatars((prev) => {
-          const newAvatars = [...prev, ev.target.result]
-          return newAvatars.slice(-3)
-        })
-      }
-      reader.readAsDataURL(file)
+      const formData = new FormData()
+      // Используем ключ 'file' (должен совпадать с настройками на сервере)
+      formData.append('file', file)
+
+      axios.post('http://localhost:1934/avatars/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`
+        }
+      })
+      .then((response) => {
+        // Ожидаем, что сервер вернёт { avatarUrl: "http://localhost:1934/avatars/152" }
+        const newAvatarUrl = response.data.avatarUrl
+        if (!newAvatarUrl) {
+          setMessage('Сервер не вернул URL аватарки.')
+          return
+        }
+        setSelectedAvatar(newAvatarUrl)
+        localStorage.setItem('selectedAvatar', newAvatarUrl)
+        // Обновляем аватарку в шапке через функцию, переданную из App.jsx
+        if (setHeaderAvatar) {
+          setHeaderAvatar(newAvatarUrl)
+        }
+        if (onAvatarSelect) {
+          onAvatarSelect(newAvatarUrl)
+        }
+        setMessage('Аватар успешно загружен.')
+      })
+      .catch((error) => {
+        setMessage('Ошибка загрузки аватара.')
+        console.error('Ошибка загрузки аватара:', error)
+      })
     }
   }
 
+  // Открытие диалога выбора файла
   const handleAddCustomAvatarClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click()
     }
   }
 
+  // Обработчик выбора стандартной аватарки
   const handleAvatarClick = (src) => {
     setSelectedAvatar(src)
     localStorage.setItem('selectedAvatar', src)
+    if (setHeaderAvatar) {
+      setHeaderAvatar(src)
+    }
     if (onAvatarSelect) {
       onAvatarSelect(src)
     }
   }
 
-  const placeholdersCount = 3 - uploadedAvatars.length
-
+  // Переход к редактированию адреса доставки
   const handleEditAddressClick = () => {
     navigate('/profile/edit-address')
   }
 
+  // Выход из профиля
   const handleLogout = () => {
     localStorage.removeItem('lastName')
     localStorage.removeItem('firstName')
@@ -185,7 +228,6 @@ function Profile({ onAvatarSelect, setIsLoggedIn, setIsAdmin, setHeaderAvatar })
 
     if (setIsLoggedIn) setIsLoggedIn(false)
     if (setIsAdmin) setIsAdmin(false)
-
     if (setHeaderAvatar) {
       setHeaderAvatar('')
     }
@@ -197,6 +239,7 @@ function Profile({ onAvatarSelect, setIsLoggedIn, setIsAdmin, setHeaderAvatar })
     <div className="profile-page page-fade-in">
       <h2>Личный кабинет</h2>
 
+      {/* Отображение данных профиля (режим просмотра) */}
       {!isEditing && (
         <>
           <p><strong>Фамилия:</strong> {lastName}</p>
@@ -204,13 +247,13 @@ function Profile({ onAvatarSelect, setIsLoggedIn, setIsAdmin, setHeaderAvatar })
           <p><strong>Отчество:</strong> {secondName}</p>
           <p><strong>Ник:</strong> {username}</p>
           <p><strong>Email:</strong> {email}</p>
-
           <button onClick={handleEditClick} style={{ marginTop: '20px' }}>
             Изменить
           </button>
         </>
       )}
 
+      {/* Форма редактирования профиля */}
       {isEditing && (
         <div className="form-fields" style={{ maxWidth: '640px', margin: '20px auto' }}>
           <div className="form-group">
@@ -262,19 +305,12 @@ function Profile({ onAvatarSelect, setIsLoggedIn, setIsAdmin, setHeaderAvatar })
               type="text"
               value={editEmail}
               onChange={(e) => setEditEmail(e.target.value)}
-              pattern="^[A-Za-z0-9@._-]+$"
+              pattern="^[A-Za-z0-9@._\\-]+$"
               title="Только латиница, цифры, символы @._-"
               onKeyDown={noCyrillic}
             />
           </div>
-          <div
-            className="save-btn-container"
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              marginTop: '20px'
-            }}
-          >
+          <div className="save-btn-container" style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
             <button onClick={handleCancelClick}>Отмена</button>
             <button onClick={handleSaveClick}>Сохранить</button>
           </div>
@@ -282,35 +318,25 @@ function Profile({ onAvatarSelect, setIsLoggedIn, setIsAdmin, setHeaderAvatar })
       )}
 
       <div style={{ marginTop: '20px' }}>
-        <button onClick={handleEditAddressClick}>
-          Изменить адрес доставки
-        </button>
+        <button onClick={handleEditAddressClick}>Изменить адрес доставки</button>
       </div>
 
+      {/* Секция выбора стандартных аватарок */}
       <div className="avatar-grid" style={{ marginTop: '40px' }}>
         {avatarList.map((src, index) => (
           <div
             key={index}
-            className={
-              selectedAvatar === src
-                ? 'avatar-item selected-avatar'
-                : 'avatar-item'
-            }
+            className={selectedAvatar === src ? 'avatar-item selected-avatar' : 'avatar-item'}
             onClick={() => handleAvatarClick(src)}
           >
-            <img
-              src={src}
-              alt={`avatar-${index + 1}`}
-              className="avatar-image"
-            />
+            <img src={src} alt={`avatar-${index + 1}`} className="avatar-image" />
           </div>
         ))}
       </div>
 
+      {/* Секция загрузки собственной аватарки */}
       <div className="upload-btn-container">
-        <button onClick={handleAddCustomAvatarClick}>
-          Добавить свою аватарку
-        </button>
+        <button onClick={handleAddCustomAvatarClick}>Добавить свою аватарку</button>
         <input
           type="file"
           ref={fileInputRef}
@@ -318,29 +344,6 @@ function Profile({ onAvatarSelect, setIsLoggedIn, setIsAdmin, setHeaderAvatar })
           accept="image/*"
           onChange={handleFileChange}
         />
-      </div>
-
-      <div className="avatar-grid-small">
-        {uploadedAvatars.map((src, idx) => (
-          <div
-            key={`uploaded-${idx}`}
-            className={
-              selectedAvatar === src
-                ? 'avatar-item selected-avatar'
-                : 'avatar-item'
-            }
-            onClick={() => handleAvatarClick(src)}
-          >
-            <img
-              src={src}
-              alt={`custom-avatar-${idx + 1}`}
-              className="avatar-image"
-            />
-          </div>
-        ))}
-        {Array.from({ length: placeholdersCount }, (_, i) => (
-          <div key={`placeholder-${i}`} className="avatar-item placeholder" />
-        ))}
       </div>
 
       <div className="save-btn-container" style={{ marginTop: '20px' }}>
