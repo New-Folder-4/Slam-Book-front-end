@@ -250,11 +250,54 @@ function StartExchange() {
     onlyDigits(e)
   }
 
-  // ---------------- Шаг 2: Добавление книги ----------------
-  const handleBookNext = async () => {
+  // ---------------- Шаг 2: Добавление автора ----------------
+  const handleBookNext1 = async () => {
+    const newErrors = []
+    if (!giveAuthor.trim()) newErrors.push('Укажите автора книги')
+    if (newErrors.length > 0) {
+      setErrors(newErrors)
+      return
+    }
+    
+
+    try {
+      const token = localStorage.getItem('token') || ''
+
+      // Разбиваем ФИО автора
+      const authorParts = giveAuthor.trim().split(' ')
+      let authorPayload = {}
+      if (authorParts.length > 1) {
+        authorPayload = {
+          firstName: authorParts.slice(0, -1).join(' '),
+          lastName: authorParts[authorParts.length - 1]
+        }
+      } else {
+        authorPayload = { firstName: '', lastName: giveAuthor }
+      }
+
+      /*
+      // Создаём автора
+      const authorRes = await axios.post(
+        'http://localhost:1934/authors',
+        authorPayload,
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      const authorId = authorRes.data.idAuthor
+      */
+
+      // Сброс формы
+      
+      setGiveAuthor('')
+      setStep(3)
+    } catch (error) {
+      console.error('Ошибка при создании автора:', error)
+      setErrors([error.message])
+    }
+  }
+  const handleBookNext2 = async () => {
     const newErrors = []
     if (!giveTitle.trim()) newErrors.push('Укажите название книги')
-    if (!giveAuthor.trim()) newErrors.push('Укажите автора книги')
+    
     if (!giveYear.trim()) {
       newErrors.push('Укажите год издания')
     } else {
@@ -272,54 +315,35 @@ function StartExchange() {
     try {
       const token = localStorage.getItem('token') || ''
 
-      // Разбиваем ФИО автора
-      const authorParts = giveAuthor.trim().split(' ')
-      let authorPayload = {}
-      if (authorParts.length > 1) {
-        authorPayload = {
-          firstName: authorParts.slice(0, -1).join(' '),
-          lastName: authorParts[authorParts.length - 1]
-        }
-      } else {
-        authorPayload = { firstName: '', lastName: giveAuthor }
-      }
-
-      // Создаём автора
-      const authorRes = await axios.post(
-        'http://localhost:1934/authors',
-        authorPayload,
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
-      const authorId = authorRes.data.idAuthor
-
-      // Создаём книгу
+       //Создаём книгу
       const bookPayload = {
         idBookLiterary: 0,
-        idAuthor: authorId,
+        //idAuthor: authorId,
         firstName: giveTitle,
         lastName: giveAuthor
       }
 
-      const bookRes = await axios.post(
-        'http://localhost:1934/books',
-        bookPayload,
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
-      const bookId = bookRes.data.idBookLiterary
+      //const bookRes = await axios.post(
+      //  'http://localhost:1934/books',
+      //  bookPayload,
+      //  { headers: { Authorization: `Bearer ${token}` } }
+      //)
+      //const bookId = bookRes.data.idBookLiterary
 
-      // Сохраняем книгу в массив
+       //Сохраняем книгу в массив
       setSavedBooks((prev) => [
         ...prev,
-        { title: giveTitle, author: giveAuthor, year: giveYear, isbn: giveISBN, bookId }
+          {
+              title: giveTitle, author: giveAuthor, year: giveYear, isbn: giveISBN//, bookId 
+          }
       ])
 
       // Сброс формы
       setGiveTitle('')
-      setGiveAuthor('')
       setGiveYear('')
       setGiveISBN('')
       setErrors([])
-      setStep(1)
+      setStep(4)
     } catch (error) {
       console.error('Ошибка при создании книги:', error)
       setErrors([error.message])
@@ -427,7 +451,7 @@ function StartExchange() {
 
       {step === 1 && (
         <div className="step-content">
-          <h3>Скрин 1: Выберите действие</h3>
+          <h3>Выберите действие</h3>
           <table className="exchange-table">
             <thead>
               <tr>
@@ -516,7 +540,40 @@ function StartExchange() {
 
       {step === 2 && (
         <div className="step-content">
-          <h3>Скрин 2: Добавить книгу</h3>
+          <h3>Этап 1: Добавить автора</h3>
+          <div className="form-group">
+            <h3>Введите данные об авторе</h3><br></br>
+            <label>Имя и фамилия через пробел:</label>
+            <input
+              type="text"
+              value={giveAuthor}
+              onChange={(e) => setGiveAuthor(e.target.value)}
+              placeholder="Например, Михаил Булгаков"
+              pattern="^[A-Za-zА-Яа-яЁё\s-]+$"
+              title="Только буквы, пробелы и дефисы"
+              onKeyDown={onlyLetters}
+            /> 
+                     
+          </div>
+          <div
+            className="step-navigation"
+            style={{
+              display: 'flex',
+              gap: '20px',
+              marginTop: '20px',
+              justifyContent: 'flex-end'
+            }}
+          >
+            <button onClick={handleBookBack}>Назад</button>
+            <button onClick={handleBookNext1}>Далее</button>
+          </div>
+        </div>
+      )}
+
+      {step === 3 && (
+        <div className="step-content">
+          <h3>Этап 2: Добавить книгу</h3>
+          <h3>Введите данные о книге</h3>
           <div className="form-group">
             <label>Название книги:</label>
             <input
@@ -526,18 +583,7 @@ function StartExchange() {
               placeholder="Например, Мастер и Маргарита"
             />
           </div>
-          <div className="form-group">
-            <label>Автор:</label>
-            <input
-              type="text"
-              value={giveAuthor}
-              onChange={(e) => setGiveAuthor(e.target.value)}
-              placeholder="Например, Булгаков"
-              pattern="^[A-Za-zА-Яа-яЁё\s-]+$"
-              title="Только буквы, пробелы и дефисы"
-              onKeyDown={onlyLetters}
-            />
-          </div>
+          
           <div className="form-group">
             <label>Год издания:</label>
             <input
@@ -572,12 +618,12 @@ function StartExchange() {
             }}
           >
             <button onClick={handleBookBack}>Назад</button>
-            <button onClick={handleBookNext}>Далее</button>
+            <button onClick={handleBookNext2}>Далее</button>
           </div>
         </div>
       )}
 
-      {step === 3 && (
+      {step === 4 && (
         <div className="step-content">
           <h3>Скрин 3: Выбор жанров</h3>
           <p>Отметьте жанры, которые вы хотите получить:</p>
@@ -647,7 +693,7 @@ function StartExchange() {
         </div>
       )}
 
-      {step === 4 && (
+      {step === 5 && (
         <div className="step-content">
           <h3>Скрин 4: Подтверждение выбора</h3>
           <p>Вы выбрали следующие жанры:</p>
