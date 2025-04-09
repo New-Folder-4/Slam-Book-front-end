@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 
 function EditAddress() {
   const [addrIndex, setAddrIndex] = useState('')
@@ -11,24 +12,37 @@ function EditAddress() {
   const [message, setMessage] = useState('')
 
   const navigate = useNavigate()
+  const token = localStorage.getItem('token')
 
   useEffect(() => {
     document.title = 'Изменить адрес доставки'
-    const storedIndex = localStorage.getItem('addrIndex') || ''
-    const storedCity = localStorage.getItem('addrCity') || ''
-    const storedStreet = localStorage.getItem('addrStreet') || ''
-    const storedHouse = localStorage.getItem('addrHouse') || ''
-    const storedStruct = localStorage.getItem('addrStructure') || ''
-    const storedApart = localStorage.getItem('addrApart') || ''
 
-    setAddrIndex(storedIndex)
-    setAddrCity(storedCity)
-    setAddrStreet(storedStreet)
-    setAddrHouse(storedHouse)
-    setAddrStructure(storedStruct)
-    setAddrApart(storedApart)
-  }, [])
+    // GET-запрос для получения текущего адреса пользователя (по токену)
+    axios.get('http://localhost:1934/user/addresses', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    .then((response) => {
+      // Если сервер возвращает массив адресов – берем первый,
+      // либо если возвращается объект – используем его напрямую.
+      const address = Array.isArray(response.data)
+        ? response.data[0]
+        : response.data
 
+      if (address) {
+        setAddrIndex(address.addrIndex || '')
+        setAddrCity(address.addrCity || '')
+        setAddrStreet(address.addrStreet || '')
+        setAddrHouse(address.addrHouse || '')
+        setAddrStructure(address.addrStructure || '')
+        setAddrApart(address.addrApart || '')
+      }
+    })
+    .catch((error) => {
+      console.error('Ошибка при получении адреса:', error)
+    })
+  }, [token])
+
+  // Функция разрешает ввод только букв (латиница, кириллица, пробел, дефис)
   const onlyLetters = (e) => {
     if (
       !(
@@ -37,13 +51,14 @@ function EditAddress() {
         e.key === 'Tab' ||
         e.key === 'ArrowLeft' ||
         e.key === 'ArrowRight' ||
-        /[A-Za-zА-Яа-яЁё\s-]/.test(e.key)
+        /[A-Za-zА-Яа-яЁё\s\-]/.test(e.key)
       )
     ) {
       e.preventDefault()
     }
   }
 
+  // Функция разрешает ввод только цифр
   const onlyDigits = (e) => {
     if (
       !(
@@ -64,15 +79,32 @@ function EditAddress() {
   }
 
   const handleSave = () => {
-    localStorage.setItem('addrIndex', addrIndex)
-    localStorage.setItem('addrCity', addrCity)
-    localStorage.setItem('addrStreet', addrStreet)
-    localStorage.setItem('addrHouse', addrHouse)
-    localStorage.setItem('addrStructure', addrStructure)
-    localStorage.setItem('addrApart', addrApart)
+    // Формируем payload в формате JSON
+    const payload = {
+      addrIndex,
+      addrCity,
+      addrStreet,
+      addrHouse,
+      addrStructure,
+      addrApart,
+      isDefault: true
+    }
 
-    setMessage('Адрес сохранён!')
-    setTimeout(() => navigate('/profile'), 1000)
+    // PUT-запрос для обновления существующего адреса
+    axios.put('http://localhost:1934/user/addresses', payload, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      }
+    })
+    .then(() => {
+      setMessage('Адрес сохранён!')
+      setTimeout(() => navigate('/profile'), 1000)
+    })
+    .catch((error) => {
+      console.error('Ошибка при сохранении адреса:', error)
+      setMessage('Не удалось сохранить адрес')
+    })
   }
 
   return (
@@ -100,7 +132,7 @@ function EditAddress() {
             onChange={(e) => setAddrCity(e.target.value)}
             placeholder="Город"
             maxLength={15}
-            pattern="^[A-Za-zА-Яа-яЁё\s-]+$"
+            pattern="^[A-Za-zА-Яа-яЁё\\s\\-]+$"
             title="Только буквы, пробелы и дефисы"
             onKeyDown={onlyLetters}
           />
@@ -113,7 +145,7 @@ function EditAddress() {
             onChange={(e) => setAddrStreet(e.target.value)}
             placeholder="Улица"
             maxLength={25}
-            pattern="^[A-Za-zА-Яа-яЁё\s-]+$"
+            pattern="^[A-Za-zА-Яа-яЁё\\s\\-]+$"
             title="Только буквы, пробелы и дефисы"
             onKeyDown={onlyLetters}
           />

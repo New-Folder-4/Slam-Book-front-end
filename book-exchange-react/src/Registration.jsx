@@ -7,7 +7,7 @@ function Registration({ setIsLoggedIn, setIsAdmin }) {
   const [firstName, setFirstName] = useState('')
   const [secondName, setSecondName] = useState('')
   const [email, setEmail] = useState('')
-  const [username, setUsername] = useState('')
+  const [userName, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [message, setMessage] = useState('')
   const [isError, setIsError] = useState(false)
@@ -55,7 +55,7 @@ function Registration({ setIsLoggedIn, setIsAdmin }) {
       !lastName.trim() ||
       !firstName.trim() ||
       !email.trim() ||
-      !username.trim() ||
+      !userName.trim() ||
       !password.trim()
     ) {
       return false
@@ -74,18 +74,41 @@ function Registration({ setIsLoggedIn, setIsAdmin }) {
       return
     }
 
- const payload = {
-  firstName,
-  lastName,
-  secondName, // если требуется
-  username,   // добавлено поле username
-  email,
-  password
-}
+    const payload = {
+      firstName,
+      lastName,
+      secondName, 
+      email,
+      userName,   
+      password
+    }
 
     axios
       .post('http://localhost:1934/auth/register', payload)
       .then((response) => {
+        // Если в ответе присутствует token, сохраняем его и создаем пустой адрес для пользователя
+        if (response.data && response.data.token) {
+          localStorage.setItem('token', response.data.token)
+          const token = response.data.token
+          // Отправляем POST запрос для создания пустого адреса
+          axios.post('http://localhost:1934/user/addresses', {
+            addrIndex: "",
+            addrCity: "",
+            addrStreet: "",
+            addrHouse: "",
+            addrStructure: "",
+            addrApart: "",
+            isDefault: true
+          }, {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+          .then(() => {
+            console.log("Пустой адрес успешно создан")
+          })
+          .catch((error) => {
+            console.error("Ошибка при создании пустого адреса:", error)
+          })
+        }
         setIsError(false)
         setMessage('Регистрация прошла успешно!')
         setIsLoggedIn(true)
@@ -171,7 +194,7 @@ function Registration({ setIsLoggedIn, setIsAdmin }) {
           <label>Ник (уникальный)*:</label>
           <input
             type="text"
-            value={username}
+            value={userName}
             onChange={(e) => setUsername(e.target.value)}
             placeholder="Ваш ник"
             maxLength={20}

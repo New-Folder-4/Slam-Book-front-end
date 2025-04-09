@@ -14,7 +14,6 @@ function Login({ setIsLoggedIn, setIsAdmin }) {
     document.title = 'Авторизация'
   }, [])
 
-  // Функция разрешает ввод латинских букв, цифр, @, . , _ и -
   const onlyEmailChars = (e) => {
     if (
       !(
@@ -35,23 +34,30 @@ function Login({ setIsLoggedIn, setIsAdmin }) {
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    // ИЗМЕНЕНИЕ ТОЛЬКО ЗДЕСЬ:
     const payload = {
-      username: email, // Вместо { email, password } отправляем { username: email, password }
+      username: email, // как у вас сделано
       password
     }
 
     axios
       .post('http://localhost:1934/auth/login', payload)
       .then((response) => {
+        // Если сервер возвращает token:
+        if (response.data && response.data.token) {
+          // Сохраняем токен
+          localStorage.setItem('token', response.data.token)
+        }
+
         setIsError(false)
         setMessage('Вы успешно авторизованы.')
-        // Обработка успешного входа
+
+        // Проверка, админ ли это (если у вас своя логика)
         if (email === 'admin@example.com') {
           setIsAdmin(true)
         } else {
           setIsAdmin(false)
         }
+
         setIsLoggedIn(true)
         setTimeout(() => navigate('/profile'), 1000)
       })
@@ -65,7 +71,10 @@ function Login({ setIsLoggedIn, setIsAdmin }) {
   return (
     <div className="profile-page page-fade-in">
       <h2>Авторизация</h2>
-      <form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: '640px', margin: '0 auto' }}>
+      <form
+        onSubmit={handleSubmit}
+        style={{ width: '100%', maxWidth: '640px', margin: '0 auto' }}
+      >
         <div className="form-group">
           <label>Username:</label>
           <input
