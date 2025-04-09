@@ -388,17 +388,17 @@ function StartExchange() {
       return
     }
     setErrors([])
-    setStep(4)
+    setStep(5)
   }
   const handleBack = () => {
     setErrors([])
-    if (step === 3) {
+    if (step === 4) {
       setSelectedGenres([])
       setSearchQuery('')
       setSelectAll(false)
       setStep(1)
-    } else if (step === 4) {
-      setStep(3)
+    } else if (step === 5) {
+      setStep(4)
     }
   }
 
@@ -491,7 +491,7 @@ function StartExchange() {
                     Что вы хотите получить
                   </div>
                   <button
-                    onClick={() => setStep(3)}
+                    onClick={() => setStep(4)}
                     style={{ width: '90%', marginBottom: '10px' }}
                   >
                     Выбрать жанры
@@ -555,18 +555,18 @@ function StartExchange() {
             /> 
                      
           </div>
-          <div
-            className="step-navigation"
-            style={{
-              display: 'flex',
-              gap: '20px',
-              marginTop: '20px',
-              justifyContent: 'flex-end'
-            }}
-          >
-            <button onClick={handleBookBack}>Назад</button>
-            <button onClick={handleBookNext1}>Далее</button>
-          </div>
+                  <div
+                      className="step-navigation"
+                      style={{
+                          display: 'flex',
+                          flexDirection: 'row',
+                          justifyContent: 'center',
+                          gap: '10px', // Промежуток между кнопками
+                      }}
+                  >
+                      <button onClick={handleBookBack}>Назад</button>
+                      <button onClick={handleBookNext1}>Далее</button>
+                  </div>
         </div>
       )}
 
@@ -610,12 +610,12 @@ function StartExchange() {
           </div>
           <div
             className="step-navigation"
-            style={{
-              display: 'flex',
-              gap: '20px',
-              marginTop: '20px',
-              justifyContent: 'flex-end'
-            }}
+                      style={{
+                          display: 'flex',
+                          flexDirection: 'row',
+                          justifyContent: 'center',
+                          gap: '10px', // Промежуток между кнопками
+                      }}
           >
             <button onClick={handleBookBack}>Назад</button>
             <button onClick={handleBookNext2}>Далее</button>
@@ -625,7 +625,7 @@ function StartExchange() {
 
       {step === 4 && (
         <div className="step-content">
-          <h3>Скрин 3: Выбор жанров</h3>
+          <h3>Этап 3: Выбор жанров</h3>
           <p>Отметьте жанры, которые вы хотите получить:</p>
           <div style={{ marginBottom: '10px' }}>
             <input
@@ -680,12 +680,12 @@ function StartExchange() {
           </div>
           <div
             className="step-navigation"
-            style={{
-              display: 'flex',
-              gap: '20px',
-              marginTop: '20px',
-              justifyContent: 'flex-start'
-            }}
+                      style={{
+                          display: 'flex',
+                          flexDirection: 'row',
+                          justifyContent: 'center',
+                          gap: '10px', // Промежуток между кнопками
+                      }}
           >
             <button onClick={handleBack}>Назад</button>
             <button onClick={handleGenreNext}>Далее</button>
@@ -697,7 +697,7 @@ function StartExchange() {
         <div className="step-content">
           <h3>Скрин 4: Подтверждение выбора</h3>
           <p>Вы выбрали следующие жанры:</p>
-          <ul style={{ marginBottom: '20px' }}>
+          <ul style={{ marginBottom: '20px', listStyleType: 'none' }}>
             {selectedGenres.map((genre, index) => (
               <li key={index}>{genre}</li>
             ))}

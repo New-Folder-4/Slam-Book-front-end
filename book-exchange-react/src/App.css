@@ -627,13 +627,12 @@ button:hover {
 
   /* Кнопки "Назад" и "Далее" на одном уровне, одинаковый размер */
   .step-navigation {
-    flex-direction: row !important;
-    justify-content: center !important;
-    gap: 10px !important;
-  }
-  .step-navigation button {
-    flex: 1 1 auto;
-  }
+    display: flex; /* Активация Flexbox */
+    flex-direction: row; /* Кнопки в строку */
+    justify-content: center; /* Выравнивание по центру */
+    gap: 10px; /* Расстояние между кнопками */
+    
+}
 
   .admin-panel {
     padding: 10px;
