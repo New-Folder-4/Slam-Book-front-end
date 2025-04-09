@@ -10,6 +10,7 @@ import Login from './Login.jsx'
 import AdminPanel from './components/AdminPanel.jsx'
 import SupportChat from './components/SupportChat.jsx'
 import EditAddress from './EditAddress.jsx'
+import Notifications from './components/Notifications.jsx'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -48,6 +49,7 @@ function App() {
               <li><Link to="/my-exchanges">Мои обмены</Link></li>
               <li><Link to="/profile">Личный кабинет</Link></li>
               <li><Link to="/feedback">Обратная связь</Link></li>
+              <li><Link to="/notifications">Уведомления</Link></li>
               {isAdmin && (
                 <>
                   <li><Link to="/admin">Админ-панель</Link></li>
@@ -82,6 +84,7 @@ function App() {
                 <li><Link to="/my-exchanges">Мои обмены</Link></li>
                 <li><Link to="/profile">Личный кабинет</Link></li>
                 <li><Link to="/feedback">Обратная связь</Link></li>
+                <li><Link to="/notifications">Уведомления</Link></li>
                 {isAdmin && (
                   <>
                     <li><Link to="/admin">Админ-панель</Link></li>
@@ -151,6 +154,7 @@ function App() {
             />
             <Route path="/admin" element={<AdminPanel />} />
             <Route path="/support-chat/:userId" element={<SupportChat />} />
+            <Route path="/notifications" element={<Notifications />} />
           </Routes>
         </div>
       </main>
