@@ -2,25 +2,29 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
 function StartExchange() {
-  // Этапы: 1 – Главное окно, 2 – Добавление книги, 3 – Выбор жанров, 4 – Подтверждение выбора
+  // Этапы: 1 – Главное окно, 2 – Добавление автора, 3 – Добавление книги,
+  //        4 – Выбор жанров, 5 – Подтверждение выбора
   const [step, setStep] = useState(1)
   const [errors, setErrors] = useState([])
 
-  // Данные книги (этап 2)
+  // Данные из полей (этап 2,3)
   const [giveTitle, setGiveTitle] = useState('')
   const [giveAuthor, setGiveAuthor] = useState('')
   const [giveYear, setGiveYear] = useState('')
   const [giveISBN, setGiveISBN] = useState('')
 
-  // Сохранённые книги
+  // ID автора, возвращается при создании автора
+  const [authorId, setAuthorId] = useState(null)
+
+  // Сохранённые книги (с реальным bookId от сервера)
   const [savedBooks, setSavedBooks] = useState([])
 
-  // Этап выбора жанров (этап 3)
+  // Этап выбора жанров (этап 4)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectAll, setSelectAll] = useState(false)
   const [selectedGenres, setSelectedGenres] = useState([])
 
-  // Состояние для wishes (GET отключён – нет запроса)
+  // Состояние для wishes (GET отключён)
   const [wishes, setWishes] = useState([])
 
   // Полный список жанров
@@ -200,11 +204,10 @@ function StartExchange() {
     'Интерактивные рассказы': 82
   }
 
-  const mapGenresToIds = (genres) => {
-    return genres.map((g) => genreMapping[g]).filter((id) => id !== undefined)
-  }
+  const mapGenresToIds = (genres) =>
+    genres.map((g) => genreMapping[g]).filter((id) => id !== undefined)
 
-  // -------------- Валидация (строчные функции) --------------
+  // ------ Валидация ввода -------
   const onlyLetters = (e) => {
     if (
       !(
@@ -219,6 +222,7 @@ function StartExchange() {
       e.preventDefault()
     }
   }
+
   const onlyDigits = (e) => {
     if (
       !(
@@ -233,6 +237,7 @@ function StartExchange() {
       e.preventDefault()
     }
   }
+
   const handleISBNKeyDown = (e) => {
     if (
       giveISBN.length >= 13 &&
@@ -250,20 +255,20 @@ function StartExchange() {
     onlyDigits(e)
   }
 
-  // ---------------- Шаг 2: Добавление автора ----------------
+  // ------ Шаг 2: Добавление автора ------
   const handleBookNext1 = async () => {
     const newErrors = []
     if (!giveAuthor.trim()) newErrors.push('Укажите автора книги')
+
     if (newErrors.length > 0) {
       setErrors(newErrors)
       return
     }
-    
 
     try {
       const token = localStorage.getItem('token') || ''
 
-      // Разбиваем ФИО автора
+      // Разбиваем ФИО
       const authorParts = giveAuthor.trim().split(' ')
       let authorPayload = {}
       if (authorParts.length > 1) {
@@ -275,7 +280,6 @@ function StartExchange() {
         authorPayload = { firstName: '', lastName: giveAuthor }
       }
 
-      /*
       // Создаём автора
       const authorRes = await axios.post(
         'http://localhost:1934/authors',
@@ -283,21 +287,23 @@ function StartExchange() {
         { headers: { Authorization: `Bearer ${token}` } }
       )
       const authorId = authorRes.data.idAuthor
-      */
+      setAuthorId(authorId)
 
-      // Сброс формы
-      
+      // Сброс + переход
       setGiveAuthor('')
+      setErrors([])
       setStep(3)
     } catch (error) {
       console.error('Ошибка при создании автора:', error)
       setErrors([error.message])
     }
   }
+
+  // ------ Шаг 3: Добавление книги ------
   const handleBookNext2 = async () => {
     const newErrors = []
     if (!giveTitle.trim()) newErrors.push('Укажите название книги')
-    
+
     if (!giveYear.trim()) {
       newErrors.push('Укажите год издания')
     } else {
@@ -307,6 +313,7 @@ function StartExchange() {
     if (giveISBN && (giveISBN.length < 10 || giveISBN.length > 13)) {
       newErrors.push('Неверный ISBN (должен быть 10-13 цифр)')
     }
+
     if (newErrors.length > 0) {
       setErrors(newErrors)
       return
@@ -315,30 +322,31 @@ function StartExchange() {
     try {
       const token = localStorage.getItem('token') || ''
 
-       //Создаём книгу
+      // Создаём книгу (связь с authorId)
       const bookPayload = {
-        idBookLiterary: 0,
-        //idAuthor: authorId,
-        firstName: giveTitle,
-        lastName: giveAuthor
+        bookName: giveTitle,
+        idAuthor: authorId
       }
+      const bookRes = await axios.post(
+        'http://localhost:1934/books',
+        bookPayload,
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      const bookId = bookRes.data.idBookLiterary
 
-      //const bookRes = await axios.post(
-      //  'http://localhost:1934/books',
-      //  bookPayload,
-      //  { headers: { Authorization: `Bearer ${token}` } }
-      //)
-      //const bookId = bookRes.data.idBookLiterary
-
-       //Сохраняем книгу в массив
+      // Сохранение данных на фронте
       setSavedBooks((prev) => [
         ...prev,
-          {
-              title: giveTitle, author: giveAuthor, year: giveYear, isbn: giveISBN//, bookId 
-          }
+        {
+          title: giveTitle,
+          author: giveAuthor,
+          year: giveYear,
+          isbn: giveISBN,
+          bookId: bookId
+        }
       ])
 
-      // Сброс формы
+      // Сброс + шаг 4
       setGiveTitle('')
       setGiveYear('')
       setGiveISBN('')
@@ -349,6 +357,7 @@ function StartExchange() {
       setErrors([error.message])
     }
   }
+
   const handleBookBack = () => {
     setGiveTitle('')
     setGiveAuthor('')
@@ -358,7 +367,7 @@ function StartExchange() {
     setStep(1)
   }
 
-  // ---------------- Шаг 3: Выбор жанров ----------------
+  // ------ Шаг 4: Выбор жанров ------
   const handleGenreChange = (checked, genre) => {
     if (checked) {
       setSelectedGenres((prev) => {
@@ -374,6 +383,7 @@ function StartExchange() {
       })
     }
   }
+
   const toggleSelectAll = (checked) => {
     setSelectAll(checked)
     if (checked) {
@@ -382,14 +392,20 @@ function StartExchange() {
       setSelectedGenres([])
     }
   }
+
   const handleGenreNext = () => {
     if (selectedGenres.length === 0) {
       setErrors(['Пожалуйста, выберите хотя бы один жанр.'])
       return
     }
     setErrors([])
-    setStep(5)
+    if (step == 4) {
+      setStep(5)
+    } else if (step == 6) {
+      setStep(7)
+    }
   }
+
   const handleBack = () => {
     setErrors([])
     if (step === 4) {
@@ -402,49 +418,64 @@ function StartExchange() {
     }
   }
 
-  // ---------------- Шаг 4: Подтверждение обмена ----------------
+  const handleBackWishes = () => {
+    if (step == 6) {
+      setErrors([])
+      setSelectedGenres([])
+      setSearchQuery('')
+      setSelectAll(false)
+      setStep(1)
+    } else if (step == 7) {
+      setStep(6)
+    }
+  }
+
+  // ------ Шаг 5: Подтверждение обмена ------
   const handleConfirmExchange = async () => {
     try {
       const token = localStorage.getItem('token') || ''
-      const now = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z')
 
-      // Создаём offers для каждой сохранённой книги
-      for (const book of savedBooks) {
-        const offerPayload = {
-          bookLiteraryId: book.bookId,
-          isbn: book.isbn,
-          yearPublishing: new Date(parseInt(book.year, 10), 0, 1).toISOString(),
-          status: 'ACTIVE',
+      // 1) Создаём offers для каждой книги
+      // yearPublishing = int (parseInt(...)), status = "active"
+      if (step == 3) {
+        for (const book of savedBooks) {
+          const offerPayload = {
+            bookLiteraryId: book.bookId,
+            isbn: book.isbn,
+            yearPublishing: parseInt(book.year, 10), // int
+            status: 'active',
+            categoryIds: mapGenresToIds(selectedGenres)
+          }
+          await axios.post('http://localhost:1934/offers', offerPayload, {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+        }
+        alert('Книга сохранена и данные отправлены на сервер!')
+        setSavedBooks([])
+        setSelectedGenres([])
+        setStep(1)
+      } else if (step == 7) {
+        // 2) Создаём wish
+        // Только status, categoryIds (createAt и updateAt убрали)
+        const wishPayload = {
+          status: 'active',
           categoryIds: mapGenresToIds(selectedGenres)
         }
-        await axios.post('http://localhost:1934/offers', offerPayload, {
+        await axios.post('http://localhost:1934/wishes/v2', wishPayload, {
           headers: { Authorization: `Bearer ${token}` }
         })
+
+        alert('Желание подтверждено и данные отправлены на сервер!')
+        setSelectedGenres([])
+        setStep(1)
       }
-
-      // Формируем объект для wish
-      const wishPayload = {
-        status: 'active',
-        createAt: now,
-        updateAt: now,
-        categoryIds: mapGenresToIds(selectedGenres)
-      }
-      await axios.post('http://localhost:1934/wishes/v2', wishPayload, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-
-      alert('Обмен успешно подтвержден и данные отправлены на сервер!')
-
-      setSavedBooks([])
-      setSelectedGenres([])
-      setStep(1)
     } catch (error) {
       console.error('Ошибка при подтверждении обмена:', error)
       setErrors([error.message])
     }
   }
 
-  // ---------------- RENDER ----------------
+  // ------ Отрисовка ------
   return (
     <div className="profile-page page-fade-in">
       <h2>Обмен книгами</h2>
@@ -452,89 +483,45 @@ function StartExchange() {
       {step === 1 && (
         <div className="step-content">
           <h3>Выберите действие</h3>
-          <table className="exchange-table">
+          <table className="exchange-table" st>
             <thead>
               <tr>
-                <th style={{ width: '50%', border: '1px solid #ccc', textAlign: 'center', padding: '10px' }}>
-                  <div style={{ marginBottom: '10px', fontWeight: 'bold' }}>
-                    Что у вас есть на обмен
-                  </div>
+                <th
+                  style={{
+                    width: '50%',
+                    border: 'none',
+                    textAlign: 'center',
+                    padding: '10px'
+                  }}
+                >
                   <button
                     onClick={() => setStep(2)}
                     style={{ width: '90%', marginBottom: '10px' }}
                   >
-                    Добавить книгу
+                    Добавить книгу для обмена
                   </button>
-                  {savedBooks.length === 0 ? (
-                    <p>Нет добавленных книг</p>
-                  ) : (
-                    savedBooks.map((book, index) => {
-                      const bgColor = index % 2 === 0 ? '#f7f7f7' : '#ededed'
-                      return (
-                        <div
-                          key={index}
-                          style={{
-                            marginBottom: '5px',
-                            padding: '5px',
-                            backgroundColor: bgColor
-                          }}
-                        >
-                          {book.title} ({book.year})
-                          {book.isbn ? ` (ISBN: ${book.isbn})` : ''}
-                        </div>
-                      )
-                    })
-                  )}
+
                 </th>
-                <th style={{ width: '50%', border: '1px solid #ccc', textAlign: 'center', padding: '10px' }}>
-                  <div style={{ marginBottom: '10px', fontWeight: 'bold' }}>
-                    Что вы хотите получить
-                  </div>
+                <th
+                  style={{
+                    width: '50%',
+                    border: 'none',
+                    textAlign: 'center',
+                    padding: '10px'
+                  }}
+                >
                   <button
-                    onClick={() => setStep(4)}
+                    onClick={() => setStep(6)}
                     style={{ width: '90%', marginBottom: '10px' }}
                   >
-                    Выбрать жанры
+                    Получение желаемой книги
                   </button>
-                  {wishes.length === 0 ? (
-                    <p>Нет сохраненных wishes</p>
-                  ) : (
-                    wishes.map((wish, index) => {
-                      const bgColor = index % 2 === 0 ? '#f7f7f7' : '#ededed'
-                      return (
-                        <div
-                          key={wish.id || index}
-                          style={{
-                            marginBottom: '5px',
-                            padding: '5px',
-                            backgroundColor: bgColor
-                          }}
-                        >
-                          <div>Статус: {wish.status}</div>
-                          <div>Создано: {wish.createAt}</div>
-                          <div>Обновлено: {wish.updateAt}</div>
-                          <div>
-                            Жанры:{' '}
-                            {wish.categoryIds
-                              .map((id) =>
-                                Object.keys(genreMapping).find(
-                                  (genreName) => genreMapping[genreName] === id
-                                )
-                              )
-                              .join(', ')}
-                          </div>
-                        </div>
-                      )
-                    })
-                  )}
+
                 </th>
               </tr>
             </thead>
           </table>
 
-          <div style={{ marginTop: '20px', textAlign: 'center' }}>
-            <button onClick={handleConfirmExchange}>Подтвердить обмен</button>
-          </div>
         </div>
       )}
 
@@ -542,7 +529,8 @@ function StartExchange() {
         <div className="step-content">
           <h3>Этап 1: Добавить автора</h3>
           <div className="form-group">
-            <h3>Введите данные об авторе</h3><br></br>
+            <h3>Введите данные об авторе</h3>
+            <br />
             <label>Имя и фамилия через пробел:</label>
             <input
               type="text"
@@ -552,21 +540,20 @@ function StartExchange() {
               pattern="^[A-Za-zА-Яа-яЁё\s-]+$"
               title="Только буквы, пробелы и дефисы"
               onKeyDown={onlyLetters}
-            /> 
-                     
+            />
           </div>
-                  <div
-                      className="step-navigation"
-                      style={{
-                          display: 'flex',
-                          flexDirection: 'row',
-                          justifyContent: 'center',
-                          gap: '10px', // Промежуток между кнопками
-                      }}
-                  >
-                      <button onClick={handleBookBack}>Назад</button>
-                      <button onClick={handleBookNext1}>Далее</button>
-                  </div>
+          <div
+            className="step-navigation"
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'center',
+              gap: '10px'
+            }}
+          >
+            <button onClick={handleBookBack}>Назад</button>
+            <button onClick={handleBookNext1}>Далее</button>
+          </div>
         </div>
       )}
 
@@ -583,7 +570,7 @@ function StartExchange() {
               placeholder="Например, Мастер и Маргарита"
             />
           </div>
-          
+
           <div className="form-group">
             <label>Год издания:</label>
             <input
@@ -610,15 +597,15 @@ function StartExchange() {
           </div>
           <div
             className="step-navigation"
-                      style={{
-                          display: 'flex',
-                          flexDirection: 'row',
-                          justifyContent: 'center',
-                          gap: '10px', // Промежуток между кнопками
-                      }}
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'center',
+              gap: '10px'
+            }}
           >
             <button onClick={handleBookBack}>Назад</button>
-            <button onClick={handleBookNext2}>Далее</button>
+            <button onClick={handleBookNext2}>Добавить книгу</button>
           </div>
         </div>
       )}
@@ -626,6 +613,92 @@ function StartExchange() {
       {step === 4 && (
         <div className="step-content">
           <h3>Этап 3: Выбор жанров</h3>
+          <p>Отметьте жанры, к которым относится ваша книга:</p>
+          <div style={{ marginBottom: '10px' }}>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value)
+                setSelectAll(false)
+                setSelectedGenres((prev) =>
+                  prev.filter((g) =>
+                    g.toLowerCase().includes(e.target.value.toLowerCase())
+                  )
+                )
+              }}
+              placeholder="Поиск по жанрам..."
+              style={{ width: '90%' }}
+            />
+          </div>
+          <div style={{ marginBottom: '10px' }}>
+            <label>
+              <input
+                type="checkbox"
+                checked={selectAll}
+                onChange={(e) => toggleSelectAll(e.target.checked)}
+              />{' '}
+              Выбрать все
+            </label>
+          </div>
+          <div
+            style={{
+              maxHeight: '150px',
+              overflowY: 'auto',
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+              padding: '10px'
+            }}
+          >
+            {filteredGenres.map((genre) => (
+              <div key={genre} style={{ marginBottom: '5px' }}>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={selectedGenres.includes(genre)}
+                    onChange={(e) => handleGenreChange(e.target.checked, genre)}
+                  />{' '}
+                  {genre}
+                </label>
+              </div>
+            ))}
+          </div>
+          <div
+            className="step-navigation"
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'center',
+              gap: '10px'
+            }}
+          >
+            <button onClick={handleBack}>Назад</button>
+            <button onClick={handleGenreNext}>Далее</button>
+          </div>
+        </div>
+      )}
+
+      {step === 5 && (
+        <div className="step-content">
+          <h3>Этап 4: Подтверждение выбора</h3>
+          <p>Вы выбрали следующие жанры:</p>
+          <ul style={{ marginBottom: '20px', listStyleType: 'none' }}>
+            {selectedGenres.map((genre, index) => (
+              <li key={index}>{genre}</li>
+            ))}
+          </ul>
+          <div>
+            <button onClick={handleBack} style={{ marginRight: '10px' }}>
+              Назад
+            </button>
+            <button onClick={handleConfirmExchange}>Подтвердить добавление книги</button>
+          </div>
+        </div>
+      )}
+
+      {step === 6 && (
+        <div className="step-content">
+          <h3>Этап 1: Выбор жанров</h3>
           <p>Отметьте жанры, которые вы хотите получить:</p>
           <div style={{ marginBottom: '10px' }}>
             <input
@@ -669,9 +742,7 @@ function StartExchange() {
                   <input
                     type="checkbox"
                     checked={selectedGenres.includes(genre)}
-                    onChange={(e) =>
-                      handleGenreChange(e.target.checked, genre)
-                    }
+                    onChange={(e) => handleGenreChange(e.target.checked, genre)}
                   />{' '}
                   {genre}
                 </label>
@@ -680,22 +751,22 @@ function StartExchange() {
           </div>
           <div
             className="step-navigation"
-                      style={{
-                          display: 'flex',
-                          flexDirection: 'row',
-                          justifyContent: 'center',
-                          gap: '10px', // Промежуток между кнопками
-                      }}
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'center',
+              gap: '10px'
+            }}
           >
-            <button onClick={handleBack}>Назад</button>
+            <button onClick={handleBackWishes}>Назад</button>
             <button onClick={handleGenreNext}>Далее</button>
           </div>
         </div>
       )}
 
-      {step === 5 && (
+      {step === 7 && (
         <div className="step-content">
-          <h3>Скрин 4: Подтверждение выбора</h3>
+          <h3>Этап 2: Подтверждение выбора</h3>
           <p>Вы выбрали следующие жанры:</p>
           <ul style={{ marginBottom: '20px', listStyleType: 'none' }}>
             {selectedGenres.map((genre, index) => (
@@ -703,12 +774,10 @@ function StartExchange() {
             ))}
           </ul>
           <div>
-            <button onClick={handleBack} style={{ marginRight: '10px' }}>
+            <button onClick={handleBackWishes} style={{ marginRight: '10px' }}>
               Назад
             </button>
-            <button onClick={handleConfirmExchange}>
-              Подтвердить обмен
-            </button>
+            <button onClick={handleConfirmExchange}>Подтвердить желание</button>
           </div>
         </div>
       )}
