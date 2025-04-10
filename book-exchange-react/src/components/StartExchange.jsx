@@ -430,50 +430,54 @@ function StartExchange() {
     }
   }
 
-  // ------ Шаг 5: Подтверждение обмена ------
-  const handleConfirmExchange = async () => {
-    try {
-      const token = localStorage.getItem('token') || ''
+// ------ Шаг 5: Подтверждение обмена ------
+const handleConfirmExchange = async () => {
+  try {
+    const token = localStorage.getItem('token') || '';
 
-      // 1) Создаём offers для каждой книги
-      // yearPublishing = int (parseInt(...)), status = "active"
-      if (step == 3) {
-        for (const book of savedBooks) {
-          const offerPayload = {
-            bookLiteraryId: book.bookId,
-            isbn: book.isbn,
-            yearPublishing: parseInt(book.year, 10), // int
-            status: 'active',
-            categoryIds: mapGenresToIds(selectedGenres)
-          }
-          await axios.post('http://localhost:1934/offers', offerPayload, {
-            headers: { Authorization: `Bearer ${token}` }
-          })
-        }
-        alert('Книга сохранена и данные отправлены на сервер!')
-        setSavedBooks([])
-        setSelectedGenres([])
-        setStep(1)
-      } else if (step == 7) {
-        // 2) Создаём wish
-        // Только status, categoryIds (createAt и updateAt убрали)
-        const wishPayload = {
+    if (step === 5) {
+      // Создание offer для каждой книги
+      for (const book of savedBooks) {
+        const offerPayload = {
+          bookLiteraryId: book.bookId,
+          isbn: book.isbn,
+          yearPublishing: parseInt(book.year, 10), // int
           status: 'active',
           categoryIds: mapGenresToIds(selectedGenres)
-        }
-        await axios.post('http://localhost:1934/wishes/v2', wishPayload, {
+        };
+        await axios.post('http://localhost:1934/offers', offerPayload, {
           headers: { Authorization: `Bearer ${token}` }
-        })
-
-        alert('Желание подтверждено и данные отправлены на сервер!')
-        setSelectedGenres([])
-        setStep(1)
+        });
       }
-    } catch (error) {
-      console.error('Ошибка при подтверждении обмена:', error)
-      setErrors([error.message])
+      alert('Книга сохранена и данные отправлены на сервер!');
+      setSavedBooks([]);
+      setSelectedGenres([]);
+      setStep(1);
+    } else if (step === 7) {
+      // Создание wish
+      const wishPayload = {
+        status: 'active',
+        categoryIds: mapGenresToIds(selectedGenres)
+      };
+      await axios.post('http://localhost:1934/wishes/v2', wishPayload, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      // После POST запроса отправляем GET запрос для получения обменов
+      const matchesResponse = await axios.get('http://localhost:1934/exchange/matches', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      console.log('Полученные совпадения обменов:', matchesResponse.data);
+      alert('Желание подтверждено и данные отправлены на сервер!');
+      setSelectedGenres([]);
+      setStep(1);
     }
+  } catch (error) {
+    console.error('Ошибка при подтверждении обмена:', error);
+    setErrors([error.message]);
   }
+};
 
   // ------ Отрисовка ------
   return (
@@ -777,7 +781,7 @@ function StartExchange() {
             <button onClick={handleBackWishes} style={{ marginRight: '10px' }}>
               Назад
             </button>
-            <button onClick={handleConfirmExchange}>Подтвердить желание</button>
+            <button onClick={handleConfirmExchange}>Подтвердить желание</button> 
           </div>
         </div>
       )}
